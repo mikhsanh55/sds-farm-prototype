@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Posisi Kandang · SDS Farm Administrator</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.5.0/dist/tabler-icons.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/app.css">
+  <script>
+    tailwind.config = { theme: { extend: { colors: { brand: { DEFAULT:'#15803d', dark:'#14532d', light:'#dcfce7' } } } } }
+  </script>
+  <style>
+    .pen-cell { cursor: pointer; user-select: none; transition: transform .1s; }
+    .pen-cell:hover { transform: scale(1.05); box-shadow: 0 4px 14px rgba(0,0,0,.15); }
+    .pen-cell.sortable-ghost { opacity: .4; }
+    .pen-cell.sortable-chosen { outline: 2px dashed #15803d; }
+    .block-card.sortable-ghost { opacity: .4; }
+    .block-handle { cursor: grab; }
+    .block-handle:active { cursor: grabbing; }
+    .modal-overlay { background: rgba(15,23,42,.5); }
+  </style>
+</head>
+<body class="bg-slate-50 min-h-screen">
+  <!-- Sidebar -->
+  <aside id="sidebar" class="fixed inset-y-0 left-0 z-40 w-64 bg-white border-r border-slate-200 transform -translate-x-full lg:translate-x-0 transition-transform duration-200 flex flex-col">
+    <div class="h-16 flex items-center gap-3 px-5 border-b border-slate-200">
+      <div class="w-9 h-9 rounded-lg bg-brand text-white flex items-center justify-center font-bold">SDS</div>
+      <div>
+        <div class="font-bold text-slate-800 leading-tight">SDS Farm</div>
+        <div class="text-[11px] uppercase tracking-wider text-slate-500">Administrator</div>
+      </div>
+    </div>
+    <nav class="flex-1 p-3 space-y-1 overflow-y-auto">
+      <a href="dashboard.html" class="sidebar-link "><i class="ti ti-layout-dashboard text-lg"></i>Dashboard</a>
+      <a href="produk.html" class="sidebar-link "><i class="ti ti-cow text-lg"></i>Produk / Stok</a>
+      <a href="produk-tambah.html" class="sidebar-link "><i class="ti ti-plus text-lg"></i>Tambah Produk</a>
+      <a href="transaksi.html" class="sidebar-link "><i class="ti ti-receipt-2 text-lg"></i>Transaksi</a>
+      <a href="kandang.html" class="sidebar-link active"><i class="ti ti-map-2 text-lg"></i>Posisi Kandang</a>
+      <a href="pengadaan.html" class="sidebar-link "><i class="ti ti-truck-delivery text-lg"></i>Pengadaan</a>
+      <a href="kas.html" class="sidebar-link "><i class="ti ti-cash text-lg"></i>Kas Pemasukan</a>
+      <a href="sales.html" class="sidebar-link "><i class="ti ti-users text-lg"></i>Sales</a>
+    </nav>
+    <div class="p-3 border-t border-slate-200">
+      <a href="../index.html" class="sidebar-link text-red-600 hover:bg-red-50"><i class="ti ti-logout text-lg"></i>Keluar</a>
+    </div>
+  </aside>
+  <div id="sidebar-backdrop" class="hidden fixed inset-0 bg-black/40 z-30 lg:hidden"></div>
+
+  <!-- Topbar -->
+  <header class="lg:pl-64 sticky top-0 z-20 bg-white border-b border-slate-200">
+    <div class="h-16 flex items-center justify-between px-4 lg:px-8">
+      <div class="flex items-center gap-3">
+        <button data-toggle-sidebar class="lg:hidden p-2 rounded-md hover:bg-slate-100"><i class="ti ti-menu-2 text-xl"></i></button>
+        <h1 class="text-lg font-semibold text-slate-800">Posisi Kandang</h1>
+      </div>
+      <div class="flex items-center gap-2">
+        <button id="btn-toggle-arrange" class="px-3 py-2 rounded-md hover:bg-slate-100 text-sm font-medium flex items-center gap-1.5"><i class="ti ti-arrows-move"></i><span class="hidden sm:inline">Atur Posisi</span></button>
+        <button id="btn-add-block" class="btn-brand px-3 py-2 rounded-md text-sm font-semibold flex items-center gap-1.5"><i class="ti ti-plus"></i><span class="hidden sm:inline">Tambah Blok</span></button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main -->
+  <main class="lg:pl-64">
+    <div class="p-4 lg:p-8">
+
+      <div class="flex flex-wrap items-center justify-between gap-3 mb-6">
+        <p class="text-sm text-slate-500">Klik kandang untuk pindah/keluarkan stok. Aktifkan <b>Atur Posisi</b> untuk drag & drop blok.</p>
+        <div class="flex gap-3 text-xs">
+          <span class="flex items-center gap-1"><span class="w-3 h-3 rounded bg-emerald-500"></span> Terisi</span>
+          <span class="flex items-center gap-1"><span class="w-3 h-3 rounded bg-amber-400"></span> Booked</span>
+          <span class="flex items-center gap-1"><span class="w-3 h-3 rounded bg-slate-200"></span> Kosong</span>
+        </div>
+      </div>
+
+      <div id="arrange-banner" class="hidden mb-4 p-3 rounded-lg bg-amber-50 border border-amber-200 text-sm text-amber-800 flex items-center gap-2">
+        <i class="ti ti-info-circle"></i> Mode Atur Posisi aktif — drag judul blok untuk memindahkan urutan blok, drag isi kandang untuk memindahkan stok antar kandang.
+      </div>
+
+      <div id="blocks-grid" class="grid lg:grid-cols-2 gap-6"></div>
+
+      <div class="card mt-6 p-6">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="font-bold">Daftar Posisi Hewan</h3>
+          <input id="search-list" type="text" placeholder="Cari hewan / kandang..." class="px-3 py-2 border border-slate-200 rounded-lg text-sm w-64">
+        </div>
+        <div class="overflow-x-auto">
+          <table class="tbl w-full">
+            <thead><tr><th>Kandang</th><th>Kode Hewan</th><th>Nama</th><th>Status</th><th class="text-right">Aksi</th></tr></thead>
+            <tbody id="animal-list"></tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Modal: Pen Detail / Action -->
+  <div id="modal-pen" class="hidden fixed inset-0 z-50 modal-overlay items-center justify-center p-4">
+    <div class="bg-white rounded-xl w-full max-w-md shadow-2xl">
+      <div class="flex items-center justify-between px-5 py-4 border-b">
+        <h3 class="font-bold text-slate-800">Kandang <span id="m-pen-code" class="font-mono text-brand"></span></h3>
+        <button class="modal-close p-1 hover:bg-slate-100 rounded"><i class="ti ti-x text-lg"></i></button>
+      </div>
+      <div class="p-5 space-y-4">
+        <div id="m-pen-occupied" class="hidden space-y-3">
+          <div class="p-3 bg-emerald-50 rounded-lg">
+            <div class="text-xs text-slate-500">Hewan Saat Ini</div>
+            <div id="m-pen-animal" class="font-semibold text-slate-800"></div>
+            <div id="m-pen-status" class="text-xs mt-1"></div>
+          </div>
+          <div>
+            <label class="text-xs font-semibold text-slate-600">Pindahkan ke kandang lain</label>
+            <div class="flex gap-2 mt-1">
+              <select id="m-move-target" class="flex-1 px-3 py-2 border border-slate-200 rounded-lg text-sm"></select>
+              <button id="btn-move" class="btn-brand px-4 rounded-lg text-sm font-semibold">Pindah</button>
+            </div>
+          </div>
+          <button id="btn-remove" class="w-full px-4 py-2.5 rounded-lg border border-red-200 text-red-600 hover:bg-red-50 text-sm font-semibold flex items-center justify-center gap-2"><i class="ti ti-logout-2"></i> Keluarkan Stok dari Kandang</button>
+        </div>
+        <div id="m-pen-empty" class="hidden space-y-3">
+          <div class="p-3 bg-slate-50 rounded-lg text-sm text-slate-600">Kandang ini kosong.</div>
+          <div>
+            <label class="text-xs font-semibold text-slate-600">Tempatkan stok hewan</label>
+            <div class="flex gap-2 mt-1">
+              <input id="m-place-name" type="text" placeholder="cth: Kambing Etawa" class="flex-1 px-3 py-2 border border-slate-200 rounded-lg text-sm">
+              <button id="btn-place" class="btn-brand px-4 rounded-lg text-sm font-semibold">Tempatkan</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Add Block -->
+  <div id="modal-block" class="hidden fixed inset-0 z-50 modal-overlay items-center justify-center p-4">
+    <div class="bg-white rounded-xl w-full max-w-md shadow-2xl">
+      <div class="flex items-center justify-between px-5 py-4 border-b">
+        <h3 class="font-bold text-slate-800">Tambah Blok Kandang</h3>
+        <button class="modal-close p-1 hover:bg-slate-100 rounded"><i class="ti ti-x text-lg"></i></button>
+      </div>
+      <div class="p-5 space-y-3">
+        <div>
+          <label class="text-xs font-semibold text-slate-600">Kode Blok</label>
+          <input id="b-code" type="text" placeholder="cth: C" maxlength="2" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm mt-1 uppercase">
+        </div>
+        <div>
+          <label class="text-xs font-semibold text-slate-600">Nama Blok</label>
+          <input id="b-name" type="text" placeholder="cth: Sapi Premium" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm mt-1">
+        </div>
+        <div>
+          <label class="text-xs font-semibold text-slate-600">Jumlah Kandang</label>
+          <input id="b-count" type="number" value="8" min="1" max="40" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm mt-1">
+        </div>
+        <button id="btn-create-block" class="w-full btn-brand py-2.5 rounded-lg font-semibold">Buat Blok</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div id="toast" class="hidden fixed bottom-6 right-6 z-50 bg-slate-800 text-white px-4 py-2.5 rounded-lg shadow-lg text-sm"></div>
+
+  <script src="../assets/app.js"></script>
+  <script>
+    // ============ State ============
+    const state = {
+      blocks: [
+        { code:'A', name:'Kambing & Domba', pens: [
+          {n:'A-01',a:'Kambing Etawa #01',s:'occupied'},
+          {n:'A-02',a:'Domba Garut #02',s:'occupied'},
+          {n:'A-03',a:null,s:'empty'},
+          {n:'A-04',a:'Kambing Kacang #04',s:'occupied'},
+          {n:'A-05',a:'Etawa Premium B05',s:'booked'},
+          {n:'A-06',a:'Kambing Etawa #06',s:'occupied'},
+          {n:'A-07',a:'Domba Ekor Tipis #07',s:'occupied'},
+          {n:'A-08',a:null,s:'empty'},
+          {n:'A-09',a:'Domba Garut Premium',s:'occupied'},
+          {n:'A-10',a:'Kambing Kacang #10',s:'occupied'},
+          {n:'A-11',a:'Kambing Etawa #11',s:'occupied'},
+          {n:'A-12',a:'Etawa Super B12',s:'booked'},
+        ]},
+        { code:'B', name:'Sapi', pens: [
+          {n:'B-01',a:'Sapi Limosin #01',s:'occupied'},
+          {n:'B-02',a:'Sapi Bali #02',s:'occupied'},
+          {n:'B-03',a:'Sapi Bali #03',s:'occupied'},
+          {n:'B-04',a:null,s:'empty'},
+          {n:'B-05',a:'Limosin Premium',s:'booked'},
+          {n:'B-06',a:'Sapi Simental #06',s:'occupied'},
+          {n:'B-07',a:'Sapi Limosin #07',s:'occupied'},
+          {n:'B-08',a:'Sapi Bali #08',s:'occupied'},
+          {n:'B-09',a:null,s:'empty'},
+          {n:'B-10',a:'Sapi Limosin #10',s:'occupied'},
+          {n:'B-11',a:'Simental Booked',s:'booked'},
+          {n:'B-12',a:'Sapi Simental #12',s:'occupied'},
+        ]},
+      ],
+      arrangeMode: false,
+      currentPen: null,
+    };
+
+    // ============ Render ============
+    function colorFor(s){
+      if(s==='occupied') return 'bg-emerald-500 text-white';
+      if(s==='booked')   return 'bg-amber-400 text-amber-900';
+      return 'bg-slate-200 text-slate-500';
+    }
+    function labelFor(p){
+      if(p.s==='empty') return 'kosong';
+      if(p.s==='booked') return 'booked';
+      return (p.a||'').split(' ').slice(0,2).join(' ');
+    }
+    function render(){
+      const $g = $('#blocks-grid').empty();
+      state.blocks.forEach((b,bi)=>{
+        const $card = $(`
+          <div class="card p-6 block-card" data-bi="${bi}">
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="font-bold flex items-center gap-2">
+                <i class="ti ti-grip-vertical text-slate-300 block-handle ${state.arrangeMode?'':'hidden'}"></i>
+                Blok ${b.code} — <span class="text-slate-600 font-medium">${b.name}</span>
+              </h3>
+              <div class="flex items-center gap-1">
+                <button class="btn-add-pen p-1.5 hover:bg-slate-100 rounded text-slate-500" title="Tambah kandang"><i class="ti ti-plus"></i></button>
+                <button class="btn-del-block p-1.5 hover:bg-red-50 rounded text-red-500" title="Hapus blok"><i class="ti ti-trash"></i></button>
+              </div>
+            </div>
+            <div class="pens-grid grid grid-cols-4 gap-3"></div>
+          </div>`);
+        const $grid = $card.find('.pens-grid');
+        b.pens.forEach((p,pi)=>{
+          $grid.append(`
+            <div class="pen-cell aspect-square rounded-lg flex flex-col items-center justify-center text-xs font-semibold ${colorFor(p.s)}" data-bi="${bi}" data-pi="${pi}">
+              <div>${p.n}</div>
+              <div class="text-[10px] opacity-80 mt-0.5 px-1 truncate w-full text-center">${labelFor(p)}</div>
+            </div>`);
+        });
+        $g.append($card);
+      });
+      renderList();
+      initSortables();
+    }
+    function renderList(){
+      const q = ($('#search-list').val()||'').toLowerCase();
+      const $b = $('#animal-list').empty();
+      let rows = [];
+      state.blocks.forEach((b,bi)=>b.pens.forEach((p,pi)=>{
+        if(p.s==='empty') return;
+        const txt = (p.n+' '+(p.a||'')).toLowerCase();
+        if(q && !txt.includes(q)) return;
+        const badge = p.s==='booked' ? '<span class="badge badge-yellow">Booked</span>' : '<span class="badge badge-green">Tersedia</span>';
+        rows.push(`<tr>
+          <td class="font-mono">${p.n}</td>
+          <td class="font-mono text-xs text-slate-500">SDS-${1000+bi*100+pi}</td>
+          <td>${p.a||'-'}</td>
+          <td>${badge}</td>
+          <td class="text-right"><button class="btn-row-open text-brand text-sm font-semibold" data-bi="${bi}" data-pi="${pi}">Pindah / Keluarkan</button></td>
+        </tr>`);
+      }));
+      $b.html(rows.join('') || '<tr><td colspan="5" class="text-center text-slate-400 py-6">Tidak ada hewan.</td></tr>');
+    }
+
+    // ============ Sortable ============
+    let blockSortable=null, penSortables=[];
+    function initSortables(){
+      penSortables.forEach(s=>s.destroy()); penSortables=[];
+      if(blockSortable){ blockSortable.destroy(); blockSortable=null; }
+      if(!state.arrangeMode) return;
+      // Block reorder
+      blockSortable = Sortable.create(document.getElementById('blocks-grid'), {
+        handle:'.block-handle', animation:150,
+        onEnd: (e)=>{
+          if(e.oldIndex===e.newIndex) return;
+          const moved = state.blocks.splice(e.oldIndex,1)[0];
+          state.blocks.splice(e.newIndex,0,moved);
+          render(); toast('Urutan blok diperbarui');
+        }
+      });
+      // Pens drag between blocks
+      document.querySelectorAll('.pens-grid').forEach((el)=>{
+        penSortables.push(Sortable.create(el, {
+          group:'pens', animation:150,
+          onEnd:(e)=>{
+            const fromBi=+e.from.closest('.block-card').dataset.bi;
+            const toBi=+e.to.closest('.block-card').dataset.bi;
+            const fromCell = e.item;
+            const fromPi = +fromCell.dataset.pi;
+            // We reorder underlying arrays based on DOM order after drop
+            rebuildBlockFromDOM(fromBi);
+            if(fromBi!==toBi) rebuildBlockFromDOM(toBi);
+            render(); toast('Stok kandang dipindahkan');
+          }
+        }));
+      });
+    }
+    function rebuildBlockFromDOM(bi){
+      const card = document.querySelector(`.block-card[data-bi="${bi}"]`);
+      const cells = card.querySelectorAll('.pen-cell');
+      const block = state.blocks[bi];
+      // Keep pen codes fixed by index position in block; only reassign animal/status
+      const newAnimals = [];
+      cells.forEach(c=>{
+        const oBi=+c.dataset.bi, oPi=+c.dataset.pi;
+        const src = state.blocks[oBi].pens[oPi];
+        newAnimals.push({a:src.a, s:src.s});
+      });
+      block.pens = block.pens.map((p,i)=>({ n:p.n, a:newAnimals[i]?.a||null, s:newAnimals[i]?.s||'empty' }));
+    }
+
+    // ============ Modal ============
+    function openPen(bi,pi){
+      state.currentPen = {bi,pi};
+      const p = state.blocks[bi].pens[pi];
+      $('#m-pen-code').text(p.n);
+      if(p.s==='empty'){
+        $('#m-pen-occupied').addClass('hidden');
+        $('#m-pen-empty').removeClass('hidden');
+        $('#m-place-name').val('');
+      } else {
+        $('#m-pen-empty').addClass('hidden');
+        $('#m-pen-occupied').removeClass('hidden');
+        $('#m-pen-animal').text(p.a);
+        $('#m-pen-status').html(p.s==='booked'?'<span class="badge badge-yellow">Booked</span>':'<span class="badge badge-green">Tersedia</span>');
+        // populate move target with empty pens
+        const $sel = $('#m-move-target').empty();
+        state.blocks.forEach(b=>b.pens.forEach(pp=>{
+          if(pp.s==='empty') $sel.append(`<option value="${pp.n}">${pp.n}</option>`);
+        }));
+        if(!$sel.children().length) $sel.append('<option value="">(tidak ada kandang kosong)</option>');
+      }
+      $('#modal-pen').removeClass('hidden').addClass('flex');
+    }
+    function closeModals(){ $('.modal-overlay').addClass('hidden').removeClass('flex'); }
+    function findPen(code){
+      for(const b of state.blocks) for(const p of b.pens) if(p.n===code) return p;
+      return null;
+    }
+    function toast(msg){
+      const $t=$('#toast').text(msg).removeClass('hidden');
+      clearTimeout(window._tt); window._tt=setTimeout(()=>$t.addClass('hidden'),2000);
+    }
+
+    // ============ Events ============
+    $(function(){
+      render();
+      $('#blocks-grid').on('click','.pen-cell',function(){
+        if(state.arrangeMode) return;
+        openPen(+$(this).data('bi'), +$(this).data('pi'));
+      });
+      $('#blocks-grid').on('click','.btn-add-pen',function(e){
+        e.stopPropagation();
+        const bi=+$(this).closest('.block-card').data('bi');
+        const b=state.blocks[bi];
+        const next=String(b.pens.length+1).padStart(2,'0');
+        b.pens.push({n:`${b.code}-${next}`,a:null,s:'empty'});
+        render(); toast('Kandang ditambahkan');
+      });
+      $('#blocks-grid').on('click','.btn-del-block',function(e){
+        e.stopPropagation();
+        const bi=+$(this).closest('.block-card').data('bi');
+        if(confirm(`Hapus Blok ${state.blocks[bi].code}?`)){
+          state.blocks.splice(bi,1); render(); toast('Blok dihapus');
+        }
+      });
+      $('#animal-list').on('click','.btn-row-open',function(){
+        openPen(+$(this).data('bi'), +$(this).data('pi'));
+      });
+      $('.modal-close').on('click', closeModals);
+      $('#modal-pen,#modal-block').on('click', function(e){ if(e.target===this) closeModals(); });
+
+      $('#btn-move').on('click', function(){
+        const target = $('#m-move-target').val();
+        if(!target) return toast('Tidak ada kandang kosong');
+        const {bi,pi} = state.currentPen;
+        const src = state.blocks[bi].pens[pi];
+        const dst = findPen(target);
+        dst.a = src.a; dst.s = src.s;
+        src.a = null; src.s='empty';
+        closeModals(); render(); toast(`Dipindahkan ke ${target}`);
+      });
+      $('#btn-remove').on('click', function(){
+        const {bi,pi} = state.currentPen;
+        const p = state.blocks[bi].pens[pi];
+        p.a=null; p.s='empty';
+        closeModals(); render(); toast('Stok dikeluarkan dari kandang');
+      });
+      $('#btn-place').on('click', function(){
+        const name = $('#m-place-name').val().trim();
+        if(!name) return toast('Isi nama hewan');
+        const {bi,pi} = state.currentPen;
+        const p = state.blocks[bi].pens[pi];
+        p.a = name; p.s='occupied';
+        closeModals(); render(); toast('Stok ditempatkan');
+      });
+
+      $('#btn-toggle-arrange').on('click', function(){
+        state.arrangeMode = !state.arrangeMode;
+        $(this).toggleClass('btn-brand text-white', state.arrangeMode);
+        $('#arrange-banner').toggleClass('hidden', !state.arrangeMode);
+        render();
+      });
+
+      $('#btn-add-block').on('click', ()=> $('#modal-block').removeClass('hidden').addClass('flex'));
+      $('#btn-create-block').on('click', function(){
+        const code = ($('#b-code').val()||'').trim().toUpperCase();
+        const name = ($('#b-name').val()||'').trim() || 'Blok Baru';
+        const count = Math.max(1, Math.min(40, +$('#b-count').val()||8));
+        if(!code) return toast('Kode blok wajib diisi');
+        if(state.blocks.find(b=>b.code===code)) return toast('Kode blok sudah ada');
+        const pens=[];
+        for(let i=1;i<=count;i++) pens.push({n:`${code}-${String(i).padStart(2,'0')}`,a:null,s:'empty'});
+        state.blocks.push({code,name,pens});
+        $('#b-code,#b-name').val(''); $('#b-count').val(8);
+        closeModals(); render(); toast('Blok baru dibuat');
+      });
+
+      $('#search-list').on('input', renderList);
+    });
+  </script>
+</body>
+</html>

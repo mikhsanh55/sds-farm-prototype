@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SDS Farm · Pilih Peran</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.5.0/dist/tabler-icons.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/app.css">
+  <script>
+    tailwind.config = { theme: { extend: { colors: { brand: { DEFAULT:'#15803d', dark:'#14532d', light:'#dcfce7' } } } } }
+  </script>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-amber-50 flex items-center justify-center p-6">
+  <div class="max-w-5xl w-full">
+    <div class="text-center mb-10">
+      <div class="inline-flex items-center gap-3 mb-4">
+        <div class="w-14 h-14 rounded-2xl bg-brand text-white flex items-center justify-center text-2xl font-extrabold shadow-lg">SDS</div>
+      </div>
+      <h1 class="text-4xl font-extrabold text-slate-800">SDS Farm</h1>
+      <p class="text-slate-600 mt-2">Sistem Manajemen & Penjualan Hewan Qurban</p>
+      <p class="text-xs text-slate-400 mt-1">Prototipe HTML · Pilih peran untuk masuk ke dashboard</p>
+    </div>
+
+    <div class="grid md:grid-cols-3 gap-6">
+      <a href="consumer/index.html" class="group card p-6 hover:shadow-xl hover:-translate-y-1 transition-all">
+        <div class="w-14 h-14 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center mb-4 group-hover:scale-110 transition"><i class="ti ti-shopping-bag text-3xl"></i></div>
+        <h3 class="font-bold text-lg text-slate-800">Konsumen</h3>
+        <p class="text-sm text-slate-500 mt-1">Belanja hewan qurban, lihat katalog, dan pesan online.</p>
+        <div class="mt-4 text-sm font-semibold text-brand flex items-center gap-1">Masuk Toko <i class="ti ti-arrow-right"></i></div>
+      </a>
+      <a href="admin/dashboard.html" class="group card p-6 hover:shadow-xl hover:-translate-y-1 transition-all">
+        <div class="w-14 h-14 rounded-xl bg-green-100 text-green-700 flex items-center justify-center mb-4 group-hover:scale-110 transition"><i class="ti ti-shield-check text-3xl"></i></div>
+        <h3 class="font-bold text-lg text-slate-800">Admin</h3>
+        <p class="text-sm text-slate-500 mt-1">Kelola stok, kandang, sales, pengadaan & laporan kas.</p>
+        <div class="mt-4 text-sm font-semibold text-brand flex items-center gap-1">Masuk Admin <i class="ti ti-arrow-right"></i></div>
+      </a>
+      <a href="kasir/dashboard.html" class="group card p-6 hover:shadow-xl hover:-translate-y-1 transition-all">
+        <div class="w-14 h-14 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center mb-4 group-hover:scale-110 transition"><i class="ti ti-cash-register text-3xl"></i></div>
+        <h3 class="font-bold text-lg text-slate-800">Kasir</h3>
+        <p class="text-sm text-slate-500 mt-1">Input transaksi, pembayaran parsial, dan cetak nota.</p>
+        <div class="mt-4 text-sm font-semibold text-brand flex items-center gap-1">Masuk Kasir <i class="ti ti-arrow-right"></i></div>
+      </a>
+    </div>
+
+    <p class="text-center text-xs text-slate-400 mt-10">© 2026 SDS Farm · Tech: Laravel + jQuery + Tailwind + Tabler Icons</p>
+  </div>
+</body>
+</html>

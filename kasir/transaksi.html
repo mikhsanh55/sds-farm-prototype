@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Daftar Transaksi · SDS Farm Kasir</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.5.0/dist/tabler-icons.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+  <style>
+    * { font-family: 'Inter', sans-serif; }
+    .card { background: white; border-radius: 16px; border: 1px solid #e2e8f0; transition: all 0.2s; }
+    .input, .select { width: 100%; padding: 8px 12px; border: 1px solid #e2e8f0; border-radius: 10px; outline: none; font-size: 14px; }
+    .input:focus, .select:focus { border-color: #f59e0b; ring: 2px solid #fef3c7; }
+    .label { font-size: 12px; font-weight: 600; color: #475569; margin-bottom: 4px; display: block; }
+    .badge { padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; display: inline-block; }
+    .badge-green { background: #dcfce7; color: #166534; }
+    .badge-yellow { background: #fef3c7; color: #92400e; }
+    .badge-red { background: #fee2e2; color: #991b1b; }
+    .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; }
+    .modal.active { display: flex; }
+    .modal-content { background: white; border-radius: 20px; max-width: 500px; width: 90%; max-height: 85vh; overflow-y: auto; }
+    .btn-primary { background: #d97706; color: white; padding: 10px 20px; border-radius: 12px; font-weight: 600; transition: all 0.2s; }
+    .btn-primary:hover { background: #b45309; }
+    .btn-secondary { background: #f3f4f6; color: #374151; padding: 10px 20px; border-radius: 12px; font-weight: 600; }
+    .tbl { width: 100%; border-collapse: collapse; }
+    .tbl th, .tbl td { padding: 12px 16px; text-align: left; border-bottom: 1px solid #e2e8f0; }
+    .tbl th { background: #f8fafc; font-weight: 600; color: #475569; font-size: 13px; }
+  </style>
+  <script>
+    tailwind.config = { theme: { extend: { colors: { brand: { DEFAULT:'#15803d', dark:'#14532d', light:'#dcfce7' } } } } }
+  </script>
+</head>
+<body class="bg-slate-50 min-h-screen">
+  <!-- Sidebar -->
+  <aside id="sidebar" class="fixed inset-y-0 left-0 z-40 w-64 bg-white border-r border-slate-200 transform -translate-x-full lg:translate-x-0 transition-transform duration-200 flex flex-col">
+    <div class="h-16 flex items-center gap-3 px-5 border-b border-slate-200">
+      <div class="w-9 h-9 rounded-lg bg-amber-600 text-white flex items-center justify-center font-bold">SDS</div>
+      <div><div class="font-bold text-slate-800 leading-tight">SDS Farm</div><div class="text-[11px] uppercase tracking-wider text-slate-500">Kasir</div></div>
+    </div>
+    <nav class="flex-1 p-3 space-y-1 overflow-y-auto">
+      <a href="dashboard.html" class="sidebar-link flex items-center gap-3 p-3 rounded-xl hover:bg-slate-50"><i class="ti ti-layout-dashboard text-lg"></i>Dashboard</a>
+      <a href="transaksi-baru.html" class="sidebar-link flex items-center gap-3 p-3 rounded-xl hover:bg-slate-50"><i class="ti ti-shopping-cart-plus text-lg"></i>Transaksi Baru</a>
+      <a href="transaksi.html" class="sidebar-link flex items-center gap-3 p-3 rounded-xl bg-amber-50 text-amber-700"><i class="ti ti-receipt-2 text-lg"></i>Daftar Transaksi</a>
+      <a href="nota.html" class="sidebar-link flex items-center gap-3 p-3 rounded-xl hover:bg-slate-50"><i class="ti ti-printer text-lg"></i>Contoh Nota</a>
+    </nav>
+    <div class="p-3 border-t border-slate-200"><a href="../index.html" class="flex items-center gap-3 p-3 rounded-xl text-red-600 hover:bg-red-50"><i class="ti ti-logout text-lg"></i>Keluar</a></div>
+  </aside>
+  <div id="sidebar-backdrop" class="hidden fixed inset-0 bg-black/40 z-30 lg:hidden"></div>
+
+  <!-- Topbar -->
+  <header class="lg:pl-64 sticky top-0 z-20 bg-white border-b border-slate-200">
+    <div class="h-16 flex items-center justify-between px-4 lg:px-8">
+      <div class="flex items-center gap-3"><button data-toggle-sidebar class="lg:hidden p-2 rounded-md hover:bg-slate-100"><i class="ti ti-menu-2 text-xl"></i></button><h1 class="text-lg font-semibold text-slate-800">Daftar Transaksi</h1></div>
+      <div class="flex items-center gap-2"><button class="p-2 rounded-md hover:bg-slate-100 relative"><i class="ti ti-bell text-xl"></i><span class="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span></button><div class="relative"><button data-toggle-user class="flex items-center gap-2 p-1.5 pr-3 rounded-full hover:bg-slate-100"><div class="w-8 h-8 rounded-full bg-amber-600 text-white flex items-center justify-center font-semibold text-sm">K</div><span class="text-sm font-medium text-slate-700 hidden sm:block">Mbak Kasir</span><i class="ti ti-chevron-down text-slate-400"></i></button><div id="user-menu" class="hidden absolute right-0 mt-2 w-48 bg-white border rounded-lg shadow-lg"><a href="#" class="block px-4 py-2 text-sm hover:bg-slate-50">Profil</a><a href="#" class="block px-4 py-2 text-sm text-red-600">Keluar</a></div></div></div>
+    </div>
+  </header>
+
+  <!-- Main -->
+  <main class="lg:pl-64">
+    <div class="p-4 lg:p-8">
+      <div class="flex flex-col md:flex-row gap-3 mb-4">
+        <div class="flex items-center gap-2 px-3 border border-slate-200 bg-white rounded-lg flex-1"><i class="ti ti-search text-slate-400"></i><input id="searchInput" class="flex-1 py-2 outline-none text-sm" placeholder="Cari kode / pelanggan..."></div>
+        <select id="filterSource" class="input w-auto"><option value="">Semua Sumber</option><option value="Toko Langsung">Toko Langsung</option><option value="Ahmad Fauzi">Sales: Ahmad Fauzi</option><option value="Budi Santoso">Sales: Budi Santoso</option><option value="Citra Lestari">Sales: Citra Lestari</option></select>
+        <select id="filterStatus" class="input w-auto"><option value="">Semua Status</option><option value="LUNAS">Lunas</option><option value="PARSIAL">Belum Lunas (DP)</option><option value="BELUM">Belum Bayar</option></select>
+        <input type="date" id="filterDate" class="input w-auto">
+        <button id="resetFilterBtn" class="px-4 py-2 bg-slate-200 rounded-lg hover:bg-slate-300"><i class="ti ti-refresh"></i> Reset</button>
+      </div>
+
+      <div class="card overflow-hidden">
+        <table class="tbl">
+          <thead>
+            <tr><th>Kode</th><th>Tanggal</th><th>Pelanggan</th><th>Sumber</th><th>Total</th><th>Dibayar</th><th>Sisa</th><th>Status</th><th>Aksi</th></tr>
+          </thead>
+          <tbody id="transactionTable"></tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <!-- Modal Pelunasan DP -->
+  <div id="paymentModal" class="modal">
+    <div class="modal-content p-6">
+      <h2 class="text-xl font-bold mb-4">Pelunasan Pembayaran</h2>
+      <div id="paymentModalContent"></div>
+    </div>
+  </div>
+
+  <!-- Modal Detail Transaksi -->
+  <div id="detailModal" class="modal">
+    <div class="modal-content p-6 max-w-2xl">
+      <h2 class="text-xl font-bold mb-4">Detail Transaksi</h2>
+      <div id="detailModalContent"></div>
+      <div class="flex gap-3 mt-6"><button onclick="closeDetailModal()" class="btn-secondary flex-1">Tutup</button></div>
+    </div>
+  </div>
+
+  <script>
+    // Data Dummy Transaksi
+    let transactions = [
+      { id: 1, code: "TRX-0341", date: "2024-03-15", customer: "H. Mahmud", phone: "081234567890", address: "Jl. Merdeka No.10", source: "Ahmad Fauzi", sourceCode: "SLS-001", items: [{name:"Sapi Limosin #07", qty:1, price:21500000}], total: 21500000, paid: 21500000, remaining: 0, status: "LUNAS", deliveryDate: "2024-03-20", notes: "-", dueDate: null },
+      { id: 2, code: "TRX-0340", date: "2024-03-14", customer: "Ibu Siti", phone: "082345678901", address: "Jl. Sudirman No.45", source: "Toko Langsung", sourceCode: "DIRECT", items: [{name:"Kambing Etawa B05", qty:2, price:3450000}], total: 6900000, paid: 3450000, remaining: 3450000, status: "PARSIAL", deliveryDate: "2024-03-22", notes: "Kirim pagi hari", dueDate: "2024-04-05" },
+      { id: 3, code: "TRX-0339", date: "2024-03-13", customer: "Pak Hasan", phone: "083456789012", address: "Jl. Raya No.23", source: "Budi Santoso", sourceCode: "SLS-002", items: [{name:"Domba Garut Premium", qty:1, price:3200000}], total: 3200000, paid: 3200000, remaining: 0, status: "LUNAS", deliveryDate: "2024-03-18", notes: "-", dueDate: null },
+      { id: 4, code: "TRX-0338", date: "2024-03-12", customer: "H. Yusuf", phone: "087654321098", address: "Jl. Ahmad Yani No.5", source: "Citra Lestari", sourceCode: "SLS-003", items: [{name:"Sapi Bali Super", qty:1, price:18900000}], total: 18900000, paid: 9000000, remaining: 9900000, status: "PARSIAL", deliveryDate: "2024-03-25", notes: "Sertifikat hewan qurban", dueDate: "2024-04-10" },
+      { id: 5, code: "TRX-0337", date: "2024-03-10", customer: "Pak Rahmat", phone: "085678901234", address: "Jl. Diponegoro No.12", source: "Toko Langsung", sourceCode: "DIRECT", items: [{name:"Kambing Kacang", qty:1, price:2350000}], total: 2700000, paid: 0, remaining: 2700000, status: "BELUM", deliveryDate: "2024-03-28", notes: "Pembayaran menyusul", dueDate: "2024-04-15" },
+      { id: 6, code: "TRX-0336", date: "2024-03-09", customer: "Bu Rina", phone: "089876543210", address: "Jl. Veteran No.8", source: "Ahmad Fauzi", sourceCode: "SLS-001", items: [{name:"Sapi Simental", qty:1, price:23000000}], total: 23000000, paid: 7000000, remaining: 16000000, status: "PARSIAL", deliveryDate: "2024-03-30", notes: "Minta dipotong kecil-kecil", dueDate: "2024-04-20" }
+    ];
+
+    let currentTransaction = null;
+
+    function rupiah(n) { return 'Rp ' + Number(n || 0).toLocaleString('id-ID'); }
+
+    function renderTransactions() {
+      let search = $('#searchInput').val().toLowerCase();
+      let source = $('#filterSource').val();
+      let status = $('#filterStatus').val();
+      let date = $('#filterDate').val();
+
+      let filtered = transactions.filter(t => {
+        let matchSearch = t.code.toLowerCase().includes(search) || t.customer.toLowerCase().includes(search);
+        let matchSource = !source || t.source === source;
+        let matchStatus = !status || t.status === status;
+        let matchDate = !date || t.date === date;
+        return matchSearch && matchSource && matchStatus && matchDate;
+      });
+
+      let html = filtered.map(t => `
+        <tr>
+          <td class="font-mono text-xs">${t.code}</td>
+          <td class="text-sm">${t.date}</td>
+          <td class="text-sm font-medium">${t.customer}</td>
+          <td class="text-xs">${t.source} ${t.sourceCode !== 'DIRECT' ? `(${t.sourceCode})` : ''}</td>
+          <td class="font-semibold">${rupiah(t.total)}</td>
+          <td>${rupiah(t.paid)}</td>
+          <td class="text-red-600 font-semibold">${rupiah(t.remaining)}</td>
+          <td>${getStatusBadge(t.status)}</td>
+          <td>
+            <div class="flex gap-1">
+              <button onclick="printNota(${t.id})" class="p-1.5 hover:bg-amber-50 text-amber-600 rounded" title="Cetak Nota"><i class="ti ti-printer"></i></button>
+              <button onclick="showDetail(${t.id})" class="p-1.5 hover:bg-slate-100 rounded" title="Detail"><i class="ti ti-eye"></i></button>
+              ${t.status !== 'LUNAS' ? `<button onclick="showPaymentModal(${t.id})" class="p-1.5 hover:bg-green-50 text-green-600 rounded" title="Pelunasan"><i class="ti ti-currency-dollar"></i></button>` : ''}
+            </div>
+          </td>
+        </tr>
+      `).join('');
+
+      if(filtered.length === 0) {
+        html = '<tr><td colspan="9" class="text-center py-8 text-slate-400">Tidak ada data transaksi</td></tr>';
+      }
+      $('#transactionTable').html(html);
+    }
+
+    function getStatusBadge(status) {
+      if(status === 'LUNAS') return '<span class="badge badge-green">✓ LUNAS</span>';
+      if(status === 'PARSIAL') return '<span class="badge badge-yellow">⚠️ DP (Belum Lunas)</span>';
+      return '<span class="badge badge-red">❌ BELUM BAYAR</span>';
+    }
+
+    function showPaymentModal(id) {
+      let transaction = transactions.find(t => t.id === id);
+      if(!transaction) return;
+      currentTransaction = transaction;
+
+      let minPayment = transaction.remaining;
+      let content = `
+        <div class="space-y-4">
+          <div class="p-3 bg-slate-50 rounded-lg">
+            <div class="flex justify-between text-sm"><span class="text-slate-500">Kode Transaksi</span><span class="font-mono">${transaction.code}</span></div>
+            <div class="flex justify-between text-sm mt-1"><span class="text-slate-500">Pelanggan</span><span class="font-medium">${transaction.customer}</span></div>
+            <div class="flex justify-between text-sm mt-1"><span class="text-slate-500">Total Tagihan</span><span class="font-bold">${rupiah(transaction.total)}</span></div>
+            <div class="flex justify-between text-sm mt-1"><span class="text-slate-500">Sudah Dibayar</span><span>${rupiah(transaction.paid)}</span></div>
+            <div class="flex justify-between text-sm mt-1 pt-2 border-t"><span class="text-red-600 font-semibold">Sisa Tagihan</span><span class="text-red-600 font-bold">${rupiah(transaction.remaining)}</span></div>
+          </div>
+          
+          <div>
+            <label class="label">Jumlah Pelunasan</label>
+            <div class="relative"><span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">Rp</span><input type="text" id="paymentAmount" class="input pl-10" placeholder="0"></div>
+            <div id="paymentError" class="text-red-500 text-xs mt-1 hidden"></div>
+          </div>
+
+          <div>
+            <label class="label">Metode Pembayaran</label>
+            <select id="paymentMethod" class="input">
+              <option value="Tunai">💵 Tunai</option>
+              <option value="Transfer Bank">🏦 Transfer Bank</option>
+              <option value="QRIS">📱 QRIS</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="label">Keterangan Pelunasan</label>
+            <textarea id="paymentNote" class="input" rows="2" placeholder="Catatan pelunasan..."></textarea>
+          </div>
+
+          <div class="flex gap-3">
+            <button onclick="processPayment()" class="btn-primary flex-1"><i class="ti ti-check"></i> Proses Pelunasan</button>
+            <button onclick="closePaymentModal()" class="btn-secondary flex-1">Batal</button>
+          </div>
+        </div>
+      `;
+      $('#paymentModalContent').html(content);
+      $('#paymentModal').addClass('active');
+      
+      // Auto format input
+      $('#paymentAmount').on('input', function() {
+        let val = $(this).val().replace(/[^0-9]/g, '');
+        $(this).val(rupiah(val).replace('Rp ', ''));
+        validatePayment();
+      });
+    }
+
+    function validatePayment() {
+      let amount = parseInt($('#paymentAmount').val().replace(/[^0-9]/g, '')) || 0;
+      let remaining = currentTransaction.remaining;
+      let errorSpan = $('#paymentError');
+      
+      if(amount <= 0) {
+        errorSpan.text('Masukkan jumlah pelunasan').removeClass('hidden');
+        return false;
+      }
+      if(amount > remaining) {
+        errorSpan.text(`Jumlah pelunasan melebihi sisa tagihan (${rupiah(remaining)})`).removeClass('hidden');
+        return false;
+      }
+      errorSpan.addClass('hidden');
+      return true;
+    }
+
+    function processPayment() {
+      if(!validatePayment()) {
+        alert('Jumlah pelunasan tidak valid');
+        return;
+      }
+      
+      let amount = parseInt($('#paymentAmount').val().replace(/[^0-9]/g, '')) || 0;
+      let method = $('#paymentMethod').val();
+      let note = $('#paymentNote').val();
+      
+      // Update transaction
+      let newPaid = currentTransaction.paid + amount;
+      let newRemaining = currentTransaction.total - newPaid;
+      currentTransaction.paid = newPaid;
+      currentTransaction.remaining = newRemaining;
+      currentTransaction.status = newRemaining === 0 ? 'LUNAS' : 'PARSIAL';
+      
+      // Add payment history
+      if(!currentTransaction.paymentHistory) currentTransaction.paymentHistory = [];
+      currentTransaction.paymentHistory.push({
+        date: new Date().toISOString().split('T')[0],
+        amount: amount,
+        method: method,
+        note: note
+      });
+      
+      let message = `✅ Pelunasan berhasil!\n\nKode: ${currentTransaction.code}\nPelanggan: ${currentTransaction.customer}\nJumlah: ${rupiah(amount)}\nMetode: ${method}\nSisa tagihan: ${rupiah(currentTransaction.remaining)}`;
+      alert(message);
+      
+      closePaymentModal();
+      renderTransactions();
+      
+      // Cetak nota pelunasan
+      printPaymentReceipt(currentTransaction, amount, method, note);
+    }
+
+    function printPaymentReceipt(transaction, amount, method, note) {
+      let receipt = `
+        ===== SDS FARM =====
+        NOTA PELUNASAN
+        Tanggal: ${new Date().toLocaleString()}
+        Kode Transaksi: ${transaction.code}
+        Pelanggan: ${transaction.customer}
+        ====================
+        Jumlah Pelunasan: ${rupiah(amount)}
+        Metode: ${method}
+        Keterangan: ${note || '-'}
+        ====================
+        Sisa Tagihan: ${rupiah(transaction.remaining)}
+        Status: ${transaction.status === 'LUNAS' ? 'LUNAS' : 'MASIH BERSISA'}
+        ====================
+        Terima kasih telah berqurban di SDS Farm
+      `;
+      console.log(receipt);
+      if(confirm("Cetak nota pelunasan?")) {
+        alert("Nota pelunasan:\n\n" + receipt);
+      }
+    }
+
+    function showDetail(id) {
+      let transaction = transactions.find(t => t.id === id);
+      if(!transaction) return;
+      
+      let itemsHtml = transaction.items.map(item => `
+        <div class="flex justify-between text-sm py-1">
+          <span>${item.name} x${item.qty}</span>
+          <span>${rupiah(item.price * item.qty)}</span>
+        </div>
+      `).join('');
+      
+      let paymentHistoryHtml = '';
+      if(transaction.paymentHistory && transaction.paymentHistory.length > 0) {
+        paymentHistoryHtml = `
+          <div class="mt-3 pt-2 border-t">
+            <div class="font-semibold text-sm mb-2">Riwayat Pembayaran:</div>
+            ${transaction.paymentHistory.map(p => `
+              <div class="flex justify-between text-xs py-1">
+                <span>${p.date}</span>
+                <span>${rupiah(p.amount)}</span>
+                <span class="text-slate-500">${p.method}</span>
+              </div>
+            `).join('')}
+          </div>
+        `;
+      }
+      
+      let content = `
+        <div class="space-y-3">
+          <div class="grid grid-cols-2 gap-2 text-sm">
+            <div><span class="text-slate-500">Kode</span><br><span class="font-mono">${transaction.code}</span></div>
+            <div><span class="text-slate-500">Tanggal</span><br>${transaction.date}</div>
+            <div><span class="text-slate-500">Pelanggan</span><br>${transaction.customer}</div>
+            <div><span class="text-slate-500">No HP</span><br>${transaction.phone || '-'}</div>
+            <div class="col-span-2"><span class="text-slate-500">Alamat</span><br>${transaction.address || '-'}</div>
+            <div><span class="text-slate-500">Sumber</span><br>${transaction.source} ${transaction.sourceCode !== 'DIRECT' ? `(${transaction.sourceCode})` : ''}</div>
+            <div><span class="text-slate-500">Tgl Pengiriman</span><br>${transaction.deliveryDate || '-'}</div>
+            <div><span class="text-slate-500">Tgl Pelunasan</span><br>${transaction.dueDate || '-'}</div>
+          </div>
+          
+          <div class="border-t pt-2">
+            <div class="font-semibold text-sm mb-2">Item:</div>
+            ${itemsHtml}
+            <div class="flex justify-between text-sm pt-2 border-t mt-2">
+              <span class="font-semibold">Total</span>
+              <span class="font-bold">${rupiah(transaction.total)}</span>
+            </div>
+          </div>
+          
+          <div class="bg-slate-50 p-3 rounded-lg">
+            <div class="flex justify-between text-sm"><span>Sudah Dibayar</span><span class="text-green-600">${rupiah(transaction.paid)}</span></div>
+            <div class="flex justify-between text-sm mt-1"><span>Sisa Tagihan</span><span class="text-red-600 font-semibold">${rupiah(transaction.remaining)}</span></div>
+            <div class="flex justify-between text-sm mt-1"><span>Status</span><span>${getStatusBadge(transaction.status)}</span></div>
+          </div>
+          
+          ${paymentHistoryHtml}
+          
+          <div class="border-t pt-2">
+            <div class="text-sm"><span class="text-slate-500">Catatan:</span><br>${transaction.notes || '-'}</div>
+          </div>
+        </div>
+      `;
+      $('#detailModalContent').html(content);
+      $('#detailModal').addClass('active');
+    }
+
+    function printNota(id) {
+      let transaction = transactions.find(t => t.id === id);
+      if(!transaction) return;
+      
+      let itemsText = transaction.items.map(i => `${i.name} x${i.qty} = ${rupiah(i.price * i.qty)}`).join('\n');
+      let nota = `
+        ===== SDS FARM =====
+        Tanggal: ${transaction.date}
+        Kode: ${transaction.code}
+        Pelanggan: ${transaction.customer}
+        Alamat: ${transaction.address || '-'}
+        Sumber: ${transaction.source}
+        ====================
+        Item:
+        ${itemsText}
+        --------------------
+        Total: ${rupiah(transaction.total)}
+        Dibayar: ${rupiah(transaction.paid)}
+        Sisa: ${rupiah(transaction.remaining)}
+        Status: ${transaction.status}
+        ====================
+        Terima kasih telah berqurban di SDS Farm
+      `;
+      alert("Nota:\n\n" + nota);
+    }
+
+    function closePaymentModal() {
+      $('#paymentModal').removeClass('active');
+      currentTransaction = null;
+    }
+
+    function closeDetailModal() {
+      $('#detailModal').removeClass('active');
+    }
+
+    // Event listeners
+    $('#searchInput, #filterSource, #filterStatus, #filterDate').on('input change', () => renderTransactions());
+    $('#resetFilterBtn').on('click', () => {
+      $('#searchInput').val('');
+      $('#filterSource').val('');
+      $('#filterStatus').val('');
+      $('#filterDate').val('');
+      renderTransactions();
+    });
+
+    // Sidebar toggle
+    $(function(){
+      $('[data-toggle-sidebar]').on('click',function(){
+        $('#sidebar').toggleClass('-translate-x-full');
+        $('#sidebar-backdrop').toggleClass('hidden');
+      });
+      $('#sidebar-backdrop').on('click',function(){
+        $('#sidebar').addClass('-translate-x-full');
+        $(this).addClass('hidden');
+      });
+      $('[data-toggle-user]').on('click',function(e){
+        e.stopPropagation();
+        $('#user-menu').toggleClass('hidden');
+      });
+      $(document).on('click',function(){ $('#user-menu').addClass('hidden'); });
+    });
+    
+    // Initial Render
+    renderTransactions();
+  </script>
+</body>
+</html>

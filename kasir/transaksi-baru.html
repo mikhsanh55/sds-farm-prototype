@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Transaksi Baru · SDS Farm Kasir</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.5.0/dist/tabler-icons.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+  <style>
+    * { font-family: 'Inter', sans-serif; }
+    .card { background: white; border-radius: 16px; border: 1px solid #e2e8f0; transition: all 0.2s; }
+    .input, .select { width: 100%; padding: 8px 12px; border: 1px solid #e2e8f0; border-radius: 10px; outline: none; font-size: 14px; }
+    .input:focus, .select:focus { border-color: #f59e0b; ring: 2px solid #fef3c7; }
+    .label { font-size: 12px; font-weight: 600; color: #475569; margin-bottom: 4px; display: block; }
+    .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; }
+    .modal.active { display: flex; }
+    .modal-content { background: white; border-radius: 20px; max-width: 550px; width: 90%; max-height: 85vh; overflow-y: auto; }
+    .btn-primary { background: #d97706; color: white; padding: 10px 20px; border-radius: 12px; font-weight: 600; transition: all 0.2s; }
+    .btn-primary:hover { background: #b45309; }
+    .btn-secondary { background: #f3f4f6; color: #374151; padding: 10px 20px; border-radius: 12px; font-weight: 600; }
+    .select2-container--default .select2-selection--single { height: 42px; border-radius: 10px; border-color: #e2e8f0; }
+    .select2-container--default .select2-selection--single .select2-selection__rendered { line-height: 42px; }
+    .stock-badge { position: absolute; top: 8px; right: 8px; background: rgba(0,0,0,0.7); color: white; padding: 2px 8px; border-radius: 20px; font-size: 11px; }
+    .animal-card { cursor: pointer; position: relative; }
+    .animal-card.disabled { opacity: 0.5; cursor: not-allowed; }
+    .cart-item { background: #f8fafc; border-radius: 12px; padding: 10px; }
+    .required:after { content: " *"; color: red; }
+  </style>
+  <script>
+    tailwind.config = { theme: { extend: { colors: { brand: { DEFAULT:'#15803d', dark:'#14532d', light:'#dcfce7' } } } } }
+  </script>
+</head>
+<body class="bg-slate-50 min-h-screen">
+  <!-- Sidebar -->
+  <aside id="sidebar" class="fixed inset-y-0 left-0 z-40 w-64 bg-white border-r border-slate-200 transform -translate-x-full lg:translate-x-0 transition-transform duration-200 flex flex-col">
+    <div class="h-16 flex items-center gap-3 px-5 border-b border-slate-200">
+      <div class="w-9 h-9 rounded-lg bg-amber-600 text-white flex items-center justify-center font-bold">SDS</div>
+      <div><div class="font-bold text-slate-800 leading-tight">SDS Farm</div><div class="text-[11px] uppercase tracking-wider text-slate-500">Kasir</div></div>
+    </div>
+    <nav class="flex-1 p-3 space-y-1 overflow-y-auto">
+      <a href="dashboard.html" class="sidebar-link flex items-center gap-3 p-3 rounded-xl hover:bg-slate-50"><i class="ti ti-layout-dashboard text-lg"></i>Dashboard</a>
+      <a href="#" class="sidebar-link flex items-center gap-3 p-3 rounded-xl bg-amber-50 text-amber-700"><i class="ti ti-shopping-cart-plus text-lg"></i>Transaksi Baru</a>
+      <a href="transaksi.html" class="sidebar-link flex items-center gap-3 p-3 rounded-xl hover:bg-slate-50"><i class="ti ti-receipt-2 text-lg"></i>Daftar Transaksi</a>
+    </nav>
+    <div class="p-3 border-t border-slate-200"><a href="#" class="flex items-center gap-3 p-3 rounded-xl text-red-600 hover:bg-red-50"><i class="ti ti-logout text-lg"></i>Keluar</a></div>
+  </aside>
+  <div id="sidebar-backdrop" class="hidden fixed inset-0 bg-black/40 z-30 lg:hidden"></div>
+
+  <!-- Topbar -->
+  <header class="lg:pl-64 sticky top-0 z-20 bg-white border-b border-slate-200">
+    <div class="h-16 flex items-center justify-between px-4 lg:px-8">
+      <div class="flex items-center gap-3"><button data-toggle-sidebar class="lg:hidden p-2 rounded-md hover:bg-slate-100"><i class="ti ti-menu-2 text-xl"></i></button><h1 class="text-lg font-semibold text-slate-800">Transaksi Baru</h1></div>
+      <div class="flex items-center gap-2"><button class="p-2 rounded-md hover:bg-slate-100 relative"><i class="ti ti-bell text-xl"></i></button><div class="relative"><button data-toggle-user class="flex items-center gap-2 p-1.5 pr-3 rounded-full hover:bg-slate-100"><div class="w-8 h-8 rounded-full bg-amber-600 text-white flex items-center justify-center font-semibold text-sm">K</div><span class="text-sm font-medium text-slate-700 hidden sm:block">Mbak Kasir</span><i class="ti ti-chevron-down text-slate-400"></i></button><div id="user-menu" class="hidden absolute right-0 mt-2 w-48 bg-white border rounded-lg shadow-lg"><a href="#" class="block px-4 py-2 text-sm hover:bg-slate-50">Profil</a><a href="#" class="block px-4 py-2 text-sm text-red-600">Keluar</a></div></div></div>
+    </div>
+  </header>
+
+  <!-- Main -->
+  <main class="lg:pl-64">
+    <div class="p-4 lg:p-8">
+      <div class="grid lg:grid-cols-[1fr_400px] gap-6">
+        <!-- Left: Animal List -->
+        <div class="space-y-6">
+          <div class="card p-5"><div class="flex items-center gap-2 px-3 border rounded-lg"><i class="ti ti-search text-slate-400"></i><input type="text" id="searchAnimal" class="flex-1 py-2 outline-none text-sm" placeholder="Cari hewan..."></div></div>
+          <div id="animalGrid" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+        </div>
+
+        <!-- Right: Cart / Checkout -->
+        <aside class="card p-5 h-fit sticky top-24 flex flex-col">
+          <div class="flex justify-between items-center mb-3"><h3 class="font-bold">Keranjang</h3><button id="customerBtn" class="text-sm bg-slate-100 px-3 py-1.5 rounded-lg hover:bg-slate-200"><i class="ti ti-user-plus"></i> Pilih Pelanggan</button></div>
+          <div id="customerInfo" class="mb-3 p-2 bg-amber-50 rounded-lg text-xs hidden">
+            <div><span id="customerNameDisplay">-</span></div>
+            <div id="salesInfoDisplay" class="text-slate-600 mt-1 text-[11px]"></div>
+          </div>
+          <div id="cartItems" class="border-t border-b py-3 space-y-3 max-h-72 overflow-y-auto"></div>
+          <div class="py-3 space-y-1.5 text-sm">
+            <div class="flex justify-between"><span class="text-slate-500">Subtotal</span><span id="subtotal">Rp 0</span></div>
+            <div class="flex justify-between items-center"><span class="text-slate-500">Diskon</span><div class="flex items-center gap-2"><input type="number" id="discountInput" class="w-28 px-2 py-1 border rounded text-right" value="0" step="1000"><span class="text-xs">Rp</span></div></div>
+            <div class="flex justify-between font-extrabold text-base pt-2 border-t"><span>Total</span><span id="totalAmount" class="text-amber-600">Rp 0</span></div>
+          </div>
+          <div class="space-y-2 pt-2">
+            <label class="label">Jenis Pembayaran</label>
+            <div class="grid grid-cols-2 gap-2"><button id="lunasBtn" class="border-2 border-amber-500 bg-amber-50 text-amber-700 py-2 rounded-lg text-sm font-semibold">Lunas</button><button id="dpBtn" class="border border-slate-300 py-2 rounded-lg text-sm font-semibold hover:bg-slate-50">DP (30%)</button></div>
+            <div id="dpInfo" class="hidden text-xs text-amber-600 bg-amber-50 p-2 rounded">Minimal DP 30% dari total</div>
+            <label class="label mt-2">Jumlah Bayar</label>
+            <div class="relative"><span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">Rp</span><input id="payAmount" class="input pl-10" placeholder="0"></div>
+            <div id="payError" class="text-red-500 text-xs hidden"></div>
+            <label class="label mt-2">Metode</label>
+            <select id="paymentMethod" class="input"><option>Tunai</option><option>Transfer Bank</option><option>QRIS</option></select>
+          </div>
+          <button id="processBtn" class="mt-4 w-full bg-amber-600 hover:bg-amber-700 text-white py-3 rounded-lg font-bold flex items-center justify-center gap-2"><i class="ti ti-check"></i> Proses & Cetak Nota</button>
+        </aside>
+      </div>
+    </div>
+  </main>
+
+  <!-- Modal Pelanggan -->
+  <div id="customerModal" class="modal">
+    <div class="modal-content p-6">
+      <h2 class="text-xl font-bold mb-4">Data Pelanggan</h2>
+      
+      <!-- Sumber Penjualan (WAJIB) -->
+      <div class="mb-4">
+        <label class="label required">Sumber Penjualan</label>
+        <select id="salesSource" class="input" style="width:100%">
+          <option value="">-- Pilih Sumber --</option>
+          <option value="Toko Langsung">🏪 Toko Langsung</option>
+        </select>
+      </div>
+      
+      <!-- Cari Pelanggan Existing -->
+      <div class="mb-4">
+        <label class="label">Cari Pelanggan Existing</label>
+        <select id="customerSelect" class="w-full" style="width:100%"></select>
+      </div>
+      
+      <div class="space-y-3">
+        <div><label class="label required">Nama Lengkap</label><input id="customerName" class="input" placeholder="Nama"></div>
+        <div><label class="label">No HP</label><input id="customerPhone" class="input" placeholder="No HP"></div>
+        <div><label class="label">Alamat Pengiriman</label><textarea id="customerAddress" class="input" rows="2" placeholder="Alamat lengkap"></textarea></div>
+        <div><label class="label">Tanggal Pengiriman</label><input id="deliveryDate" class="input" type="date"></div>
+        <div><label class="label">Keterangan</label><textarea id="notes" class="input" rows="2" placeholder="Catatan tambahan"></textarea></div>
+        <div><label class="label">Tanggal Pelunasan (jika DP)</label><input id="dueDate" class="input" type="date"></div>
+      </div>
+      <div class="flex gap-3 mt-6"><button id="saveCustomerBtn" class="btn-primary flex-1">Simpan</button><button id="closeModalBtn" class="btn-secondary flex-1">Batal</button></div>
+    </div>
+  </div>
+
+  <script>
+    // Data Dummy Hewan dengan Stok
+    let animals = [
+      { id: 1, code: "SDS-1000", name: "Sapi Limosin #07", price: 21500000, stock: 3, image: "../assets/animal-1.jpg" },
+      { id: 2, code: "SDS-1001", name: "Kambing Etawa B05", price: 3450000, stock: 5, image: "../assets/animal-2.jpg" },
+      { id: 3, code: "SDS-1002", name: "Domba Garut Premium", price: 3200000, stock: 4, image: "../assets/animal-3.jpg" },
+      { id: 4, code: "SDS-1003", name: "Sapi Bali Super", price: 18900000, stock: 2, image: "../assets/animal-1.jpg" },
+      { id: 5, code: "SDS-1004", name: "Kambing Kacang", price: 2350000, stock: 6, image: "../assets/animal-3.jpg" },
+      { id: 6, code: "SDS-1005", name: "Sapi Simental", price: 23000000, stock: 1, image: "../assets/animal-2.jpg" }
+    ];
+
+    // Data Dummy Sales dengan format "Nama Sales - KODE SALES"
+    let salesList = [
+      { id: 1, name: "Toko Langsung", code: "SLS", fullText: "Toko Langsung - SLS" },
+      { id: 1, name: "Ahmad Fauzi", code: "SLS-001", fullText: "Ahmad Fauzi - SLS-001" },
+      { id: 2, name: "Budi Santoso", code: "SLS-002", fullText: "Budi Santoso - SLS-002" },
+      { id: 3, name: "Citra Lestari", code: "SLS-003", fullText: "Citra Lestari - SLS-003" },
+      { id: 4, name: "Dedi Mulyadi", code: "SLS-004", fullText: "Dedi Mulyadi - SLS-004" },
+      { id: 5, name: "Eka Pratama", code: "SLS-005", fullText: "Eka Pratama - SLS-005" }
+    ];
+
+    // Data Dummy Pelanggan
+    let customers = [
+      { id: 1, name: "Ahmad Fauzi", phone: "081234567890", address: "Jl. Merdeka No.10, Jakarta", notes: "" },
+      { id: 2, name: "Siti Aminah", phone: "082345678901", address: "Jl. Sudirman No.45, Bandung", notes: "" },
+      { id: 3, name: "Budi Santoso", phone: "083456789012", address: "Jl. Raya No.23, Surabaya", notes: "" }
+    ];
+
+    let cart = [];
+    let currentCustomer = null;
+    let currentSales = null; // Simpan data sales yang dipilih
+    let paymentType = "lunas";
+    let selectedDiscount = 0;
+
+    // Format Rupiah
+    function rupiah(n) { return 'Rp ' + Number(n || 0).toLocaleString('id-ID'); }
+
+    // Inisialisasi Select2 untuk Sales Source
+    function initSalesSource() {
+      let $select = $('#salesSource');
+      // Kosongkan option selain default
+      $select.find('option:not(:first)').remove();
+      
+      // Tambahkan option Toko Langsung (sudah ada)
+      
+      // Tambahkan option sales dengan format "Nama Sales - KODE SALES"
+      salesList.forEach(sales => {
+        $select.append(`<option value="${sales.id}" data-name="${sales.name}" data-code="${sales.code}">${sales.fullText}</option>`);
+      });
+      
+      $select.select2({
+        placeholder: "-- Pilih Sumber Penjualan --",
+        allowClear: true,
+        width: '100%'
+      });
+    }
+
+    // Render Hewan
+    function renderAnimals(search = "") {
+      let filtered = animals.filter(a => a.name.toLowerCase().includes(search.toLowerCase()) || a.code.toLowerCase().includes(search));
+      let html = filtered.map(animal => {
+        let cartItem = cart.find(c => c.id === animal.id);
+        let qtyInCart = cartItem ? cartItem.qty : 0;
+        let availableStock = animal.stock - qtyInCart;
+        let disabled = availableStock <= 0;
+        return `<div class="card overflow-hidden text-left animal-card ${disabled ? 'disabled' : ''}" data-id="${animal.id}" data-name="${animal.name}" data-price="${animal.price}" data-stock="${animal.stock}" data-image="${animal.image}">
+          <div class="aspect-square bg-slate-100 relative"><img src="${animal.image}" class="w-full h-full object-cover"><span class="stock-badge">Stok: ${availableStock}</span></div>
+          <div class="p-3"><div class="text-xs text-slate-500">${animal.code}</div><div class="font-bold text-sm">${animal.name}</div><div class="text-amber-600 font-extrabold text-sm mt-1">${rupiah(animal.price)}</div></div>
+        </div>`;
+      }).join('');
+      document.getElementById('animalGrid').innerHTML = html;
+      attachAnimalClick();
+    }
+
+    function attachAnimalClick() {
+      document.querySelectorAll('.animal-card').forEach(card => {
+        card.addEventListener('click', () => {
+          if(card.classList.contains('disabled')) return;
+          let id = parseInt(card.dataset.id);
+          let name = card.dataset.name;
+          let price = parseInt(card.dataset.price);
+          let stock = parseInt(card.dataset.stock);
+          let image = card.dataset.image;
+          addToCart({ id, name, price, stock, image });
+        });
+      });
+    }
+
+    function addToCart(animal) {
+      let existing = cart.find(item => item.id === animal.id);
+      let currentQty = existing ? existing.qty : 0;
+      if(currentQty >= animal.stock) {
+        alert("Stok tidak mencukupi!");
+        return;
+      }
+      if(existing) {
+        existing.qty++;
+      } else {
+        cart.push({ ...animal, qty: 1 });
+      }
+      renderCart();
+    }
+
+    function removeFromCart(id) {
+      cart = cart.filter(item => item.id !== id);
+      renderCart();
+    }
+
+    function updateQty(id, delta) {
+      let item = cart.find(i => i.id === id);
+      if(item) {
+        let newQty = item.qty + delta;
+        if(newQty >= 1 && newQty <= item.stock) {
+          item.qty = newQty;
+        } else if(newQty > item.stock) {
+          alert("Stok tidak cukup");
+        } else if(newQty < 1) {
+          removeFromCart(id);
+        }
+        renderCart();
+      }
+    }
+
+    function renderCart() {
+      let cartHtml = '';
+      let subtotal = 0;
+      cart.forEach(item => {
+        let itemTotal = item.price * item.qty;
+        subtotal += itemTotal;
+        cartHtml += `<div class="cart-item flex gap-3 items-center">
+          <img src="${item.image}" class="w-12 h-12 rounded object-cover">
+          <div class="flex-1"><div class="text-sm font-semibold">${item.name}</div><div class="text-xs text-slate-500">${rupiah(item.price)}</div></div>
+          <div class="flex items-center gap-1"><button class="qty-minus w-6 h-6 rounded bg-slate-200" data-id="${item.id}">-</button><span class="w-8 text-center">${item.qty}</span><button class="qty-plus w-6 h-6 rounded bg-slate-200" data-id="${item.id}">+</button></div>
+          <button class="text-red-500 p-1 remove-item" data-id="${item.id}"><i class="ti ti-x"></i></button>
+        </div>`;
+      });
+      if(cart.length === 0) cartHtml = '<div class="text-center text-slate-400 py-4">Belum ada hewan ditambahkan</div>';
+      document.getElementById('cartItems').innerHTML = cartHtml;
+      document.getElementById('subtotal').innerHTML = rupiah(subtotal);
+      
+      let total = subtotal - selectedDiscount;
+      if(total < 0) total = 0;
+      document.getElementById('totalAmount').innerHTML = rupiah(total);
+      updatePaymentRequirements();
+      
+      document.querySelectorAll('.qty-plus').forEach(btn => btn.addEventListener('click', (e) => { e.stopPropagation(); updateQty(parseInt(btn.dataset.id), 1); }));
+      document.querySelectorAll('.qty-minus').forEach(btn => btn.addEventListener('click', (e) => { e.stopPropagation(); updateQty(parseInt(btn.dataset.id), -1); }));
+      document.querySelectorAll('.remove-item').forEach(btn => btn.addEventListener('click', (e) => { e.stopPropagation(); removeFromCart(parseInt(btn.dataset.id)); }));
+    }
+
+    // Discount handler
+    document.getElementById('discountInput').addEventListener('input', function(e) {
+      selectedDiscount = parseInt(e.target.value) || 0;
+      let subtotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+      let total = subtotal - selectedDiscount;
+      if(total < 0) total = 0;
+      document.getElementById('totalAmount').innerHTML = rupiah(total);
+      updatePaymentRequirements();
+    });
+
+    // Payment toggle
+    document.getElementById('lunasBtn').addEventListener('click', () => {
+      paymentType = "lunas";
+      document.getElementById('lunasBtn').className = "border-2 border-amber-500 bg-amber-50 text-amber-700 py-2 rounded-lg text-sm font-semibold";
+      document.getElementById('dpBtn').className = "border border-slate-300 py-2 rounded-lg text-sm font-semibold hover:bg-slate-50";
+      document.getElementById('dpInfo').classList.add('hidden');
+      updatePaymentRequirements();
+    });
+    document.getElementById('dpBtn').addEventListener('click', () => {
+      paymentType = "dp";
+      document.getElementById('dpBtn').className = "border-2 border-amber-500 bg-amber-50 text-amber-700 py-2 rounded-lg text-sm font-semibold";
+      document.getElementById('lunasBtn').className = "border border-slate-300 py-2 rounded-lg text-sm font-semibold hover:bg-slate-50";
+      document.getElementById('dpInfo').classList.remove('hidden');
+      updatePaymentRequirements();
+    });
+
+    function updatePaymentRequirements() {
+      let total = cart.reduce((sum, item) => sum + (item.price * item.qty), 0) - selectedDiscount;
+      if(total < 0) total = 0;
+      let minPay = paymentType === "dp" ? Math.ceil(total * 0.3) : total;
+      let payAmountInput = document.getElementById('payAmount');
+      payAmountInput.placeholder = rupiah(minPay);
+      if(paymentType === "dp") {
+        payAmountInput.setAttribute('min', minPay);
+      } else {
+        payAmountInput.removeAttribute('min');
+      }
+      validatePayment();
+    }
+
+    function validatePayment() {
+      let total = cart.reduce((sum, item) => sum + (item.price * item.qty), 0) - selectedDiscount;
+      if(total < 0) total = 0;
+      let payVal = parseInt(document.getElementById('payAmount').value.replace(/[^0-9]/g, '')) || 0;
+      let minPay = paymentType === "dp" ? Math.ceil(total * 0.3) : total;
+      let errorSpan = document.getElementById('payError');
+      if(payVal < minPay) {
+        errorSpan.innerText = `Minimal pembayaran ${rupiah(minPay)}`;
+        errorSpan.classList.remove('hidden');
+        return false;
+      } else if(paymentType === "lunas" && payVal !== total) {
+        errorSpan.innerText = `Harus lunas tepat ${rupiah(total)}`;
+        errorSpan.classList.remove('hidden');
+        return false;
+      } else {
+        errorSpan.classList.add('hidden');
+        return true;
+      }
+    }
+    document.getElementById('payAmount').addEventListener('input', validatePayment);
+
+    // Modal Customer
+    const modal = document.getElementById('customerModal');
+    document.getElementById('customerBtn').onclick = () => {
+      // Reset form saat modal dibuka
+      document.getElementById('customerName').value = currentCustomer ? currentCustomer.name : '';
+      document.getElementById('customerPhone').value = currentCustomer ? currentCustomer.phone : '';
+      document.getElementById('customerAddress').value = currentCustomer ? currentCustomer.address : '';
+      document.getElementById('deliveryDate').value = currentCustomer ? currentCustomer.deliveryDate : '';
+      document.getElementById('notes').value = currentCustomer ? currentCustomer.notes : '';
+      document.getElementById('dueDate').value = currentCustomer ? currentCustomer.dueDate : '';
+      if(currentSales) {
+        $('#salesSource').val(currentSales.id).trigger('change');
+      } else {
+        $('#salesSource').val('').trigger('change');
+      }
+      $('#customerSelect').val('').trigger('change');
+      modal.classList.add('active');
+    };
+    document.getElementById('closeModalBtn').onclick = () => modal.classList.remove('active');
+    
+    // Inisialisasi Select2 Customer
+    $('#customerSelect').select2({
+      placeholder: "Pilih pelanggan existing",
+      allowClear: true,
+      data: customers.map(c => ({ id: c.id, text: `${c.name} - ${c.phone}` })),
+      width: '100%'
+    });
+    
+    $('#customerSelect').on('change', function() {
+      let id = $(this).val();
+      if(id) {
+        let cust = customers.find(c => c.id == id);
+        if(cust) {
+          document.getElementById('customerName').value = cust.name;
+          document.getElementById('customerPhone').value = cust.phone;
+          document.getElementById('customerAddress').value = cust.address;
+        }
+      } else {
+        // Jangan reset jika sedang edit
+        if(!currentCustomer) {
+          document.getElementById('customerName').value = '';
+          document.getElementById('customerPhone').value = '';
+          document.getElementById('customerAddress').value = '';
+        }
+      }
+    });
+    
+    // Inisialisasi Sales Source Select2
+    initSalesSource();
+    
+    $('#salesSource').on('change', function() {
+      let val = $(this).val();
+      if(val && val !== "Toko Langsung") {
+        let sales = salesList.find(s => s.id == val);
+        if(sales) {
+          currentSales = { id: sales.id, name: sales.name, code: sales.code, fullText: sales.fullText };
+        } else {
+          currentSales = null;
+        }
+      } else if(val === "Toko Langsung") {
+        currentSales = { id: null, name: "Toko Langsung", code: "DIRECT", fullText: "🏪 Toko Langsung" };
+      } else {
+        currentSales = null;
+      }
+    });
+    
+    document.getElementById('saveCustomerBtn').onclick = () => {
+      let name = document.getElementById('customerName').value.trim();
+      let salesSource = $('#salesSource').val();
+      
+      if(!name) { alert("Nama pelanggan wajib diisi"); return; }
+      if(!salesSource) { alert("Sumber penjualan wajib dipilih"); return; }
+      
+      currentCustomer = {
+        name: name,
+        phone: document.getElementById('customerPhone').value,
+        address: document.getElementById('customerAddress').value,
+        deliveryDate: document.getElementById('deliveryDate').value,
+        notes: document.getElementById('notes').value,
+        dueDate: document.getElementById('dueDate').value
+      };
+      
+      // Tampilkan info customer + sales
+      let salesText = '';
+      if(currentSales) {
+        if(currentSales.name === "Toko Langsung") {
+          salesText = '<span class="text-green-600">🏪 Sumber: Toko Langsung</span>';
+        } else {
+          salesText = `<span class="text-blue-600">📋 Sales: ${currentSales.fullText}</span>`;
+        }
+      }
+      
+      document.getElementById('customerInfo').classList.remove('hidden');
+      document.getElementById('customerNameDisplay').innerHTML = `<i class="ti ti-user"></i> ${currentCustomer.name} ${currentCustomer.phone ? '| '+currentCustomer.phone : ''}`;
+      document.getElementById('salesInfoDisplay').innerHTML = salesText;
+      modal.classList.remove('active');
+    };
+
+    // Proses & Cetak Nota
+    document.getElementById('processBtn').onclick = () => {
+      if(cart.length === 0) { alert("Tambah hewan terlebih dahulu"); return; }
+      if(!currentCustomer) { alert("Pilih pelanggan terlebih dahulu"); return; }
+      if(!currentSales) { alert("Sumber penjualan belum dipilih. Silakan edit data pelanggan."); return; }
+      if(!validatePayment()) { alert("Jumlah pembayaran tidak valid"); return; }
+      
+      let subtotal = cart.reduce((s,i) => s + (i.price * i.qty), 0);
+      let total = subtotal - selectedDiscount;
+      let payAmount = parseInt(document.getElementById('payAmount').value.replace(/[^0-9]/g, '')) || 0;
+      let change = payAmount - total;
+      let isDP = paymentType === "dp";
+      let remaining = isDP ? total - payAmount : 0;
+      
+      // Update stok
+      cart.forEach(item => {
+        let animal = animals.find(a => a.id === item.id);
+        if(animal) animal.stock -= item.qty;
+      });
+      
+      let salesInfo = currentSales.name === "Toko Langsung" ? "Toko Langsung" : `${currentSales.name} (${currentSales.code})`;
+      
+      let nota = `
+        ===== SDS FARM =====
+        Tanggal: ${new Date().toLocaleString()}
+        Sumber: ${salesInfo}
+        Pelanggan: ${currentCustomer.name}
+        No HP: ${currentCustomer.phone || '-'}
+        Alamat: ${currentCustomer.address || '-'}
+        Pengiriman: ${currentCustomer.deliveryDate || '-'}
+        ====================
+        Item:
+        ${cart.map(i => `${i.name} x${i.qty} = ${rupiah(i.price * i.qty)}`).join('\n')}
+        --------------------
+        Subtotal: ${rupiah(subtotal)}
+        Diskon: ${rupiah(selectedDiscount)}
+        Total: ${rupiah(total)}
+        Pembayaran: ${paymentType.toUpperCase()}
+        Bayar: ${rupiah(payAmount)}
+        ${isDP ? `Sisa pembayaran: ${rupiah(remaining)}\nPelunasan tgl: ${currentCustomer.dueDate || '-'}` : `Kembali: ${rupiah(change)}`}
+        Metode: ${document.getElementById('paymentMethod').value}
+        Catatan: ${currentCustomer.notes || '-'}
+        ====================
+        Terima kasih telah berqurban di SDS Farm
+      `;
+      alert("Nota siap dicetak:\n\n" + nota);
+      
+      if(confirm("Transaksi berhasil! Reset keranjang?")) {
+        cart = [];
+        currentCustomer = null;
+        currentSales = null;
+        selectedDiscount = 0;
+        document.getElementById('discountInput').value = 0;
+        document.getElementById('customerInfo').classList.add('hidden');
+        document.getElementById('payAmount').value = '';
+        renderCart();
+        renderAnimals();
+      }
+    };
+
+    // Search
+    document.getElementById('searchAnimal').addEventListener('input', (e) => renderAnimals(e.target.value));
+    
+    // Sidebar toggle
+    $(function(){
+      $('[data-toggle-sidebar]').on('click',function(){
+        $('#sidebar').toggleClass('-translate-x-full');
+        $('#sidebar-backdrop').toggleClass('hidden');
+      });
+      $('#sidebar-backdrop').on('click',function(){
+        $('#sidebar').addClass('-translate-x-full');
+        $(this).addClass('hidden');
+      });
+      $('[data-toggle-user]').on('click',function(e){
+        e.stopPropagation();
+        $('#user-menu').toggleClass('hidden');
+      });
+      $(document).on('click',function(){ $('#user-menu').addClass('hidden'); });
+    });
+    
+    // Initial Render
+    renderAnimals();
+    renderCart();
+    updatePaymentRequirements();
+  </script>
+</body>
+</html>

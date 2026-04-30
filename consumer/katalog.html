@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Katalog · SDS Farm</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.5.0/dist/tabler-icons.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/app.css">
+  <script>
+    tailwind.config = { theme: { extend: { colors: { brand: { DEFAULT:'#15803d', dark:'#14532d', light:'#dcfce7' } } } } }
+  </script>
+
+</head>
+<body class="bg-white">
+  <header class="sticky top-0 z-30 bg-white/90 backdrop-blur border-b border-slate-200">
+    <div class="max-w-7xl mx-auto px-4 lg:px-8 h-16 flex items-center justify-between">
+      <a href="index.html" class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-lg bg-brand text-white flex items-center justify-center font-bold text-sm">SDS</div>
+        <div class="leading-tight">
+          <div class="font-extrabold text-slate-800">SDS Farm</div>
+          <div class="text-[10px] uppercase tracking-widest text-slate-500">Hewan Qurban Terpercaya</div>
+        </div>
+      </a>
+      <nav class="hidden md:flex items-center"><a href="index.html" class="px-3 py-2 text-sm font-medium text-slate-700 hover:text-brand">Beranda</a><a href="katalog.html" class="px-3 py-2 text-sm font-medium text-brand">Katalog</a><a href="tentang.html" class="px-3 py-2 text-sm font-medium text-slate-700 hover:text-brand">Tentang</a><a href="kontak.html" class="px-3 py-2 text-sm font-medium text-slate-700 hover:text-brand">Kontak</a></nav>
+      <div class="flex items-center gap-2">
+        <a href="cart.html" class="relative p-2 rounded-md hover:bg-slate-100">
+          <i class="ti ti-shopping-cart text-xl"></i>
+          <span class="absolute -top-0.5 -right-0.5 bg-amber-500 text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">2</span>
+        </a>
+        <a href="login.html" class="hidden sm:inline-flex items-center gap-1 px-4 py-2 text-sm font-semibold text-brand border border-brand rounded-lg hover:bg-brand-light">Masuk</a>
+        <a href="register.html" class="inline-flex items-center gap-1 px-4 py-2 text-sm font-semibold btn-brand rounded-lg">Daftar</a>
+      </div>
+    </div>
+  </header>
+
+  <main>
+
+    <section class="bg-brand-light py-10">
+      <div class="max-w-7xl mx-auto px-4 lg:px-8">
+        <h1 class="text-3xl font-extrabold text-slate-800">Katalog Hewan Qurban</h1>
+        <p class="text-slate-600 mt-1">Pilih hewan qurban terbaik untuk ibadah Anda.</p>
+      </div>
+    </section>
+    <section class="max-w-7xl mx-auto px-4 lg:px-8 py-10 grid lg:grid-cols-[260px_1fr] gap-8">
+      <aside class="space-y-6">
+        <div class="card p-5">
+          <h3 class="font-bold text-slate-800 mb-3">Cari</h3>
+          <div class="flex items-center gap-2 px-3 border border-slate-200 rounded-lg">
+            <i class="ti ti-search text-slate-400"></i>
+            <input class="flex-1 py-2 outline-none text-sm" placeholder="Cari hewan...">
+          </div>
+        </div>
+        <div class="card p-5">
+          <h3 class="font-bold text-slate-800 mb-3">Kategori</h3>
+          <label class="flex items-center gap-2 py-1.5 text-sm"><input type="checkbox" checked class="accent-emerald-700"> Sapi <span class="ml-auto text-xs text-slate-400">12</span></label>
+          <label class="flex items-center gap-2 py-1.5 text-sm"><input type="checkbox" checked class="accent-emerald-700"> Kambing <span class="ml-auto text-xs text-slate-400">28</span></label>
+          <label class="flex items-center gap-2 py-1.5 text-sm"><input type="checkbox" class="accent-emerald-700"> Domba <span class="ml-auto text-xs text-slate-400">15</span></label>
+          <label class="flex items-center gap-2 py-1.5 text-sm"><input type="checkbox" class="accent-emerald-700"> Kerbau <span class="ml-auto text-xs text-slate-400">3</span></label>
+        </div>
+        <div class="card p-5">
+          <h3 class="font-bold text-slate-800 mb-3">Rentang Harga</h3>
+          <div class="flex gap-2">
+            <input class="input" placeholder="Min"><input class="input" placeholder="Max">
+          </div>
+          <button class="mt-3 w-full btn-brand py-2 rounded-lg text-sm font-semibold">Terapkan</button>
+          <div class="mt-4 space-y-1.5">
+            <label class="flex items-center gap-2 text-sm"><input type="radio" name="p" class="accent-emerald-700"> < Rp 3 jt</label>
+            <label class="flex items-center gap-2 text-sm"><input type="radio" name="p" class="accent-emerald-700"> Rp 3 - 5 jt</label>
+            <label class="flex items-center gap-2 text-sm"><input type="radio" name="p" class="accent-emerald-700"> Rp 5 - 15 jt</label>
+            <label class="flex items-center gap-2 text-sm"><input type="radio" name="p" class="accent-emerald-700"> > Rp 15 jt</label>
+          </div>
+        </div>
+      </aside>
+      <div>
+        <div class="flex items-center justify-between mb-5">
+          <p class="text-sm text-slate-500">Menampilkan <span class="font-semibold text-slate-700">8</span> dari <span class="font-semibold text-slate-700">58</span> hewan</p>
+          <select class="input w-auto"><option>Terbaru</option><option>Harga Terendah</option><option>Harga Tertinggi</option></select>
+        </div>
+        <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+    <a href="produk-detail.html" class="group card overflow-hidden hover:shadow-lg transition-all">
+      <div class="relative aspect-square bg-slate-100 overflow-hidden">
+        
+        <img src="../assets/animal-1.jpg" alt="Kambing Jawarandu A12" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+      </div>
+      <div class="p-4">
+        <div class="text-xs text-slate-500 uppercase tracking-wider">Kambing</div>
+        <h3 class="font-bold text-slate-800 mt-1 group-hover:text-brand">Kambing Jawarandu A12</h3>
+        <div class="flex items-center gap-1 text-xs text-slate-500 mt-1"><i class="ti ti-weight"></i> ±32 kg</div>
+        <div class="mt-3 flex items-center justify-between">
+          <div class="font-extrabold text-brand">Rp 2.850.000</div>
+          <button class="w-9 h-9 rounded-full btn-brand flex items-center justify-center"><i class="ti ti-plus"></i></button>
+        </div>
+      </div>
+    </a>
+    <a href="produk-detail.html" class="group card overflow-hidden hover:shadow-lg transition-all">
+      <div class="relative aspect-square bg-slate-100 overflow-hidden">
+        
+        <img src="../assets/animal-2.jpg" alt="Domba Garut Premium" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+      </div>
+      <div class="p-4">
+        <div class="text-xs text-slate-500 uppercase tracking-wider">Domba</div>
+        <h3 class="font-bold text-slate-800 mt-1 group-hover:text-brand">Domba Garut Premium</h3>
+        <div class="flex items-center gap-1 text-xs text-slate-500 mt-1"><i class="ti ti-weight"></i> ±35 kg</div>
+        <div class="mt-3 flex items-center justify-between">
+          <div class="font-extrabold text-brand">Rp 3.200.000</div>
+          <button class="w-9 h-9 rounded-full btn-brand flex items-center justify-center"><i class="ti ti-plus"></i></button>
+        </div>
+      </div>
+    </a>
+    <a href="produk-detail.html" class="group card overflow-hidden hover:shadow-lg transition-all">
+      <div class="relative aspect-square bg-slate-100 overflow-hidden">
+        
+        <img src="../assets/animal-3.jpg" alt="Sapi Limosin #07" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+      </div>
+      <div class="p-4">
+        <div class="text-xs text-slate-500 uppercase tracking-wider">Sapi</div>
+        <h3 class="font-bold text-slate-800 mt-1 group-hover:text-brand">Sapi Limosin #07</h3>
+        <div class="flex items-center gap-1 text-xs text-slate-500 mt-1"><i class="ti ti-weight"></i> ±320 kg</div>
+        <div class="mt-3 flex items-center justify-between">
+          <div class="font-extrabold text-brand">Rp 21.500.000</div>
+          <button class="w-9 h-9 rounded-full btn-brand flex items-center justify-center"><i class="ti ti-plus"></i></button>
+        </div>
+      </div>
+    </a>
+    <a href="produk-detail.html" class="group card overflow-hidden hover:shadow-lg transition-all">
+      <div class="relative aspect-square bg-slate-100 overflow-hidden">
+        
+        <img src="../assets/animal-1.jpg" alt="Kambing Etawa B05" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+      </div>
+      <div class="p-4">
+        <div class="text-xs text-slate-500 uppercase tracking-wider">Kambing</div>
+        <h3 class="font-bold text-slate-800 mt-1 group-hover:text-brand">Kambing Etawa B05</h3>
+        <div class="flex items-center gap-1 text-xs text-slate-500 mt-1"><i class="ti ti-weight"></i> ±38 kg</div>
+        <div class="mt-3 flex items-center justify-between">
+          <div class="font-extrabold text-brand">Rp 3.450.000</div>
+          <button class="w-9 h-9 rounded-full btn-brand flex items-center justify-center"><i class="ti ti-plus"></i></button>
+        </div>
+      </div>
+    </a>
+    <a href="produk-detail.html" class="group card overflow-hidden hover:shadow-lg transition-all">
+      <div class="relative aspect-square bg-slate-100 overflow-hidden">
+        <span class="absolute top-3 left-3 badge badge-red">SISA 2</span>
+        <img src="../assets/animal-3.jpg" alt="Sapi Bali Super" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+      </div>
+      <div class="p-4">
+        <div class="text-xs text-slate-500 uppercase tracking-wider">Sapi</div>
+        <h3 class="font-bold text-slate-800 mt-1 group-hover:text-brand">Sapi Bali Super</h3>
+        <div class="flex items-center gap-1 text-xs text-slate-500 mt-1"><i class="ti ti-weight"></i> ±290 kg</div>
+        <div class="mt-3 flex items-center justify-between">
+          <div class="font-extrabold text-brand">Rp 18.900.000</div>
+          <button class="w-9 h-9 rounded-full btn-brand flex items-center justify-center"><i class="ti ti-plus"></i></button>
+        </div>
+      </div>
+    </a>
+    <a href="produk-detail.html" class="group card overflow-hidden hover:shadow-lg transition-all">
+      <div class="relative aspect-square bg-slate-100 overflow-hidden">
+        
+        <img src="../assets/animal-2.jpg" alt="Domba Ekor Tipis" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+      </div>
+      <div class="p-4">
+        <div class="text-xs text-slate-500 uppercase tracking-wider">Domba</div>
+        <h3 class="font-bold text-slate-800 mt-1 group-hover:text-brand">Domba Ekor Tipis</h3>
+        <div class="flex items-center gap-1 text-xs text-slate-500 mt-1"><i class="ti ti-weight"></i> ±28 kg</div>
+        <div class="mt-3 flex items-center justify-between">
+          <div class="font-extrabold text-brand">Rp 2.700.000</div>
+          <button class="w-9 h-9 rounded-full btn-brand flex items-center justify-center"><i class="ti ti-plus"></i></button>
+        </div>
+      </div>
+    </a>
+    <a href="produk-detail.html" class="group card overflow-hidden hover:shadow-lg transition-all">
+      <div class="relative aspect-square bg-slate-100 overflow-hidden">
+        
+        <img src="../assets/animal-1.jpg" alt="Kambing Kacang" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+      </div>
+      <div class="p-4">
+        <div class="text-xs text-slate-500 uppercase tracking-wider">Kambing</div>
+        <h3 class="font-bold text-slate-800 mt-1 group-hover:text-brand">Kambing Kacang</h3>
+        <div class="flex items-center gap-1 text-xs text-slate-500 mt-1"><i class="ti ti-weight"></i> ±25 kg</div>
+        <div class="mt-3 flex items-center justify-between">
+          <div class="font-extrabold text-brand">Rp 2.350.000</div>
+          <button class="w-9 h-9 rounded-full btn-brand flex items-center justify-center"><i class="ti ti-plus"></i></button>
+        </div>
+      </div>
+    </a>
+    <a href="produk-detail.html" class="group card overflow-hidden hover:shadow-lg transition-all">
+      <div class="relative aspect-square bg-slate-100 overflow-hidden">
+        
+        <img src="../assets/animal-3.jpg" alt="Sapi Simental" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+      </div>
+      <div class="p-4">
+        <div class="text-xs text-slate-500 uppercase tracking-wider">Sapi</div>
+        <h3 class="font-bold text-slate-800 mt-1 group-hover:text-brand">Sapi Simental</h3>
+        <div class="flex items-center gap-1 text-xs text-slate-500 mt-1"><i class="ti ti-weight"></i> ±340 kg</div>
+        <div class="mt-3 flex items-center justify-between">
+          <div class="font-extrabold text-brand">Rp 23.000.000</div>
+          <button class="w-9 h-9 rounded-full btn-brand flex items-center justify-center"><i class="ti ti-plus"></i></button>
+        </div>
+      </div>
+    </a></div>
+        <div class="mt-8 flex justify-center gap-1">
+          <button class="w-9 h-9 rounded-md border border-slate-200 hover:bg-slate-50"><i class="ti ti-chevron-left"></i></button>
+          <button class="w-9 h-9 rounded-md btn-brand font-semibold">1</button>
+          <button class="w-9 h-9 rounded-md border border-slate-200 hover:bg-slate-50">2</button>
+          <button class="w-9 h-9 rounded-md border border-slate-200 hover:bg-slate-50">3</button>
+          <button class="w-9 h-9 rounded-md border border-slate-200 hover:bg-slate-50"><i class="ti ti-chevron-right"></i></button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="bg-slate-900 text-slate-300 mt-20">
+    <div class="max-w-7xl mx-auto px-4 lg:px-8 py-12 grid md:grid-cols-4 gap-8">
+      <div>
+        <div class="flex items-center gap-2 mb-3">
+          <div class="w-9 h-9 rounded-lg bg-brand text-white flex items-center justify-center font-bold">SDS</div>
+          <div class="font-bold text-white">SDS Farm</div>
+        </div>
+        <p class="text-sm text-slate-400">Penyedia hewan qurban berkualitas, sehat, dan amanah sejak 2015.</p>
+      </div>
+      <div>
+        <h4 class="font-semibold text-white mb-3">Menu</h4>
+        <ul class="space-y-2 text-sm"><li><a href="index.html" class="hover:text-white">Beranda</a></li><li><a href="katalog.html" class="hover:text-white">Katalog</a></li><li><a href="tentang.html" class="hover:text-white">Tentang</a></li></ul>
+      </div>
+      <div>
+        <h4 class="font-semibold text-white mb-3">Kontak</h4>
+        <ul class="space-y-2 text-sm">
+          <li class="flex items-center gap-2"><i class="ti ti-phone"></i> 0812-3456-7890</li>
+          <li class="flex items-center gap-2"><i class="ti ti-mail"></i> info@sdsfarm.id</li>
+          <li class="flex items-center gap-2"><i class="ti ti-map-pin"></i> Bandung, Jawa Barat</li>
+        </ul>
+      </div>
+      <div>
+        <h4 class="font-semibold text-white mb-3">Sosial</h4>
+        <div class="flex gap-3">
+          <a href="#" class="w-9 h-9 rounded-full bg-slate-800 hover:bg-brand flex items-center justify-center"><i class="ti ti-brand-instagram"></i></a>
+          <a href="#" class="w-9 h-9 rounded-full bg-slate-800 hover:bg-brand flex items-center justify-center"><i class="ti ti-brand-whatsapp"></i></a>
+          <a href="#" class="w-9 h-9 rounded-full bg-slate-800 hover:bg-brand flex items-center justify-center"><i class="ti ti-brand-facebook"></i></a>
+        </div>
+      </div>
+    </div>
+    <div class="border-t border-slate-800 py-4 text-center text-xs text-slate-500">© 2026 SDS Farm. All rights reserved.</div>
+  </footer>
+
+  <script src="../assets/app.js"></script>
+</body>
+</html>

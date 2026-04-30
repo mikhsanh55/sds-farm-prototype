@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tim Sales · SDS Farm Administrator</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.5.0/dist/tabler-icons.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * { font-family: 'Inter', sans-serif; }
+    .card { background: white; border-radius: 16px; border: 1px solid #e2e8f0; transition: all 0.2s; }
+    .input, .select { width: 100%; padding: 8px 12px; border: 1px solid #e2e8f0; border-radius: 10px; outline: none; font-size: 14px; }
+    .input:focus, .select:focus { border-color: #f59e0b; ring: 2px solid #fef3c7; }
+    .label { font-size: 12px; font-weight: 600; color: #475569; margin-bottom: 4px; display: block; }
+    .btn-brand { background: #15803d; color: white; padding: 8px 16px; border-radius: 10px; font-weight: 600; transition: all 0.2s; }
+    .btn-brand:hover { background: #166534; }
+    .btn-danger { background: #dc2626; color: white; }
+    .btn-danger:hover { background: #b91c1c; }
+    .btn-secondary { background: #f3f4f6; color: #374151; padding: 8px 16px; border-radius: 10px; font-weight: 600; }
+    .badge { padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; display: inline-block; }
+    .badge-green { background: #dcfce7; color: #166534; }
+    .badge-red { background: #fee2e2; color: #991b1b; }
+    .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; }
+    .modal.active { display: flex; }
+    .modal-content { background: white; border-radius: 20px; max-width: 450px; width: 90%; max-height: 85vh; overflow-y: auto; }
+    .dropdown-menu { position: absolute; right: 0; top: 100%; background: white; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); min-width: 120px; display: none; z-index: 10; }
+    .dropdown-menu.show { display: block; }
+    .dropdown-item { padding: 8px 12px; display: flex; align-items: center; gap: 8px; cursor: pointer; }
+    .dropdown-item:hover { background: #f1f5f9; }
+  </style>
+  <script>
+    tailwind.config = { theme: { extend: { colors: { brand: { DEFAULT:'#15803d', dark:'#14532d', light:'#dcfce7' } } } } }
+  </script>
+</head>
+<body class="bg-slate-50 min-h-screen">
+  <!-- Sidebar -->
+  <aside id="sidebar" class="fixed inset-y-0 left-0 z-40 w-64 bg-white border-r border-slate-200 transform -translate-x-full lg:translate-x-0 transition-transform duration-200 flex flex-col">
+    <div class="h-16 flex items-center gap-3 px-5 border-b border-slate-200">
+      <div class="w-9 h-9 rounded-lg bg-brand text-white flex items-center justify-center font-bold">SDS</div>
+      <div>
+        <div class="font-bold text-slate-800 leading-tight">SDS Farm</div>
+        <div class="text-[11px] uppercase tracking-wider text-slate-500">Administrator</div>
+      </div>
+    </div>
+    <nav class="flex-1 p-3 space-y-1 overflow-y-auto">
+      <a href="dashboard.html" class="sidebar-link flex items-center gap-3 p-3 rounded-xl hover:bg-slate-50"><i class="ti ti-layout-dashboard text-lg"></i>Dashboard</a>
+      <a href="produk.html" class="sidebar-link flex items-center gap-3 p-3 rounded-xl hover:bg-slate-50"><i class="ti ti-cow text-lg"></i>Produk / Stok</a>
+      <a href="produk-tambah.html" class="sidebar-link flex items-center gap-3 p-3 rounded-xl hover:bg-slate-50"><i class="ti ti-plus text-lg"></i>Tambah Produk</a>
+      <a href="transaksi.html" class="sidebar-link flex items-center gap-3 p-3 rounded-xl hover:bg-slate-50"><i class="ti ti-receipt-2 text-lg"></i>Transaksi</a>
+      <a href="kandang.html" class="sidebar-link flex items-center gap-3 p-3 rounded-xl hover:bg-slate-50"><i class="ti ti-map-2 text-lg"></i>Posisi Kandang</a>
+      <a href="pengadaan.html" class="sidebar-link flex items-center gap-3 p-3 rounded-xl hover:bg-slate-50"><i class="ti ti-truck-delivery text-lg"></i>Pengadaan</a>
+      <a href="kas.html" class="sidebar-link flex items-center gap-3 p-3 rounded-xl hover:bg-slate-50"><i class="ti ti-cash text-lg"></i>Kas Pemasukan</a>
+      <a href="sales.html" class="sidebar-link flex items-center gap-3 p-3 rounded-xl bg-brand-light text-brand font-semibold"><i class="ti ti-users text-lg"></i>Sales</a>
+    </nav>
+    <div class="p-3 border-t border-slate-200">
+      <a href="../index.html" class="sidebar-link flex items-center gap-3 p-3 rounded-xl text-red-600 hover:bg-red-50"><i class="ti ti-logout text-lg"></i>Keluar</a>
+    </div>
+  </aside>
+  <div id="sidebar-backdrop" class="hidden fixed inset-0 bg-black/40 z-30 lg:hidden"></div>
+
+  <!-- Topbar -->
+  <header class="lg:pl-64 sticky top-0 z-20 bg-white border-b border-slate-200">
+    <div class="h-16 flex items-center justify-between px-4 lg:px-8">
+      <div class="flex items-center gap-3">
+        <button data-toggle-sidebar class="lg:hidden p-2 rounded-md hover:bg-slate-100"><i class="ti ti-menu-2 text-xl"></i></button>
+        <h1 class="text-lg font-semibold text-slate-800">Tim Sales</h1>
+      </div>
+      <div class="flex items-center gap-2">
+        <button class="p-2 rounded-md hover:bg-slate-100 relative"><i class="ti ti-bell text-xl"></i><span class="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span></button>
+        <div class="relative">
+          <button data-toggle-user class="flex items-center gap-2 p-1.5 pr-3 rounded-full hover:bg-slate-100">
+            <div class="w-8 h-8 rounded-full bg-brand text-white flex items-center justify-center font-semibold text-sm">A</div>
+            <span class="text-sm font-medium text-slate-700 hidden sm:block">Pak Admin</span>
+            <i class="ti ti-chevron-down text-slate-400"></i>
+          </button>
+          <div id="user-menu" class="hidden absolute right-0 mt-2 w-48 bg-white border border-slate-200 rounded-lg shadow-lg py-1">
+            <a href="#" class="block px-4 py-2 text-sm hover:bg-slate-50">Profil</a>
+            <a href="#" class="block px-4 py-2 text-sm hover:bg-slate-50">Pengaturan</a>
+            <a href="../index.html" class="block px-4 py-2 text-sm text-red-600 hover:bg-red-50">Keluar</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main -->
+  <main class="lg:pl-64">
+    <div class="p-4 lg:p-8">
+
+      <div class="flex justify-between items-center mb-6">
+        <p class="text-sm text-slate-500">Kelola tim sales lapangan SDS Farm.</p>
+        <button id="openAddModal" class="btn-brand px-4 py-2.5 rounded-lg font-semibold flex items-center gap-2"><i class="ti ti-user-plus"></i> Tambah Sales</button>
+      </div>
+
+      <div id="salesGrid" class="grid md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+
+    </div>
+  </main>
+
+  <!-- Modal Tambah/Edit Sales -->
+  <div id="salesModal" class="modal">
+    <div class="modal-content p-6">
+      <h2 id="modalTitle" class="text-xl font-bold mb-4">Tambah Sales</h2>
+      <div class="space-y-4">
+        <div>
+          <label class="label required">Kode Sales</label>
+          <input type="text" id="salesCode" class="input" placeholder="Contoh: SLS-001">
+          <p id="codeError" class="text-red-500 text-xs mt-1 hidden"></p>
+        </div>
+        <div>
+          <label class="label required">Nama Lengkap</label>
+          <input type="text" id="salesName" class="input" placeholder="Nama lengkap sales">
+        </div>
+        <div>
+          <label class="label required">No HP</label>
+          <input type="tel" id="salesPhone" class="input" placeholder="Contoh: 081234567890">
+        </div>
+        <div>
+          <label class="label">Status</label>
+          <select id="salesStatus" class="input">
+            <option value="active">Aktif</option>
+            <option value="inactive">Tidak Aktif</option>
+          </select>
+        </div>
+      </div>
+      <div class="flex gap-3 mt-6">
+        <button id="saveSalesBtn" class="btn-brand flex-1">Simpan</button>
+        <button id="closeModalBtn" class="btn-secondary flex-1">Batal</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Hapus Sales -->
+  <div id="deleteModal" class="modal">
+    <div class="modal-content p-6">
+      <h2 class="text-xl font-bold mb-4">Hapus Sales</h2>
+      <p id="deleteMessage" class="text-slate-600 mb-6">Apakah Anda yakin ingin menghapus sales ini?</p>
+      <div class="flex gap-3">
+        <button id="confirmDeleteBtn" class="btn-danger flex-1">Hapus</button>
+        <button id="cancelDeleteBtn" class="btn-secondary flex-1">Batal</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Data Dummy Sales
+    let salesData = [
+      { id: 1, code: "SLS-001", name: "Ahmad Fauzi", phone: "081211111111", status: "active", transactions: 12, totalSales: 86000000, initial: "A", color: "emerald" },
+      { id: 2, code: "SLS-002", name: "Budi Santoso", phone: "081322222222", status: "active", transactions: 9, totalSales: 72000000, initial: "B", color: "amber" },
+      { id: 3, code: "SLS-003", name: "Citra Lestari", phone: "081433333333", status: "active", transactions: 7, totalSales: 58500000, initial: "C", color: "blue" },
+      { id: 4, code: "SLS-004", name: "Dewi Anggraini", phone: "081544444444", status: "active", transactions: 5, totalSales: 41200000, initial: "D", color: "rose" },
+      { id: 5, code: "SLS-005", name: "Eko Prasetyo", phone: "081655555555", status: "active", transactions: 4, totalSales: 32800000, initial: "E", color: "violet" },
+      { id: 6, code: "SLS-006", name: "Fajar Nugroho", phone: "081766666666", status: "inactive", transactions: 3, totalSales: 24000000, initial: "F", color: "teal" }
+    ];
+
+    let currentEditId = null;
+    let currentDeleteId = null;
+    let openDropdownId = null;
+
+    function rupiah(n) { return 'Rp ' + Number(n || 0).toLocaleString('id-ID'); }
+
+    function getColorClass(color) {
+      const colors = {
+        emerald: 'bg-emerald-100 text-emerald-700',
+        amber: 'bg-amber-100 text-amber-700',
+        blue: 'bg-blue-100 text-blue-700',
+        rose: 'bg-rose-100 text-rose-700',
+        violet: 'bg-violet-100 text-violet-700',
+        teal: 'bg-teal-100 text-teal-700'
+      };
+      return colors[color] || 'bg-slate-100 text-slate-700';
+    }
+
+    function getStatusBadge(status) {
+      if (status === 'active') {
+        return '<span class="badge badge-green">● Aktif</span>';
+      }
+      return '<span class="badge badge-red">○ Tidak Aktif</span>';
+    }
+
+    function renderSales() {
+      let html = salesData.map(sales => `
+        <div class="card p-5 relative" data-id="${sales.id}">
+          <div class="flex items-start gap-4">
+            <div class="w-14 h-14 rounded-full ${getColorClass(sales.color)} flex items-center justify-center text-xl font-bold">${sales.initial}</div>
+            <div class="flex-1">
+              <div class="font-bold text-slate-800">${sales.name}</div>
+              <div class="text-xs text-slate-500">${sales.code}</div>
+              <div class="text-xs text-slate-500">${sales.phone}</div>
+              <div class="mt-2 flex items-center gap-2">${getStatusBadge(sales.status)}</div>
+            </div>
+            <div class="relative">
+              <button class="dropdown-trigger p-1.5 hover:bg-slate-100 rounded" data-id="${sales.id}"><i class="ti ti-dots-vertical"></i></button>
+              <div class="dropdown-menu" data-dropdown="${sales.id}">
+                <div class="dropdown-item edit-sales" data-id="${sales.id}"><i class="ti ti-edit text-amber-600"></i> Edit</div>
+                <div class="dropdown-item delete-sales" data-id="${sales.id}"><i class="ti ti-trash text-red-600"></i> Hapus</div>
+              </div>
+            </div>
+          </div>
+          <div class="grid grid-cols-2 gap-3 mt-5 pt-4 border-t border-slate-200">
+            <div><div class="text-xs text-slate-500">Transaksi</div><div class="font-bold">${sales.transactions}</div></div>
+            <div><div class="text-xs text-slate-500">Total Penjualan</div><div class="font-bold text-brand">${rupiah(sales.totalSales)}</div></div>
+          </div>
+        </div>
+      `).join('');
+      document.getElementById('salesGrid').innerHTML = html;
+      attachDropdownEvents();
+    }
+
+    function attachDropdownEvents() {
+      // Dropdown trigger
+      document.querySelectorAll('.dropdown-trigger').forEach(btn => {
+        btn.removeEventListener('click', handleDropdownClick);
+        btn.addEventListener('click', handleDropdownClick);
+      });
+
+      // Edit buttons
+      document.querySelectorAll('.edit-sales').forEach(btn => {
+        btn.removeEventListener('click', handleEditClick);
+        btn.addEventListener('click', handleEditClick);
+      });
+
+      // Delete buttons
+      document.querySelectorAll('.delete-sales').forEach(btn => {
+        btn.removeEventListener('click', handleDeleteClick);
+        btn.addEventListener('click', handleDeleteClick);
+      });
+    }
+
+    function handleDropdownClick(e) {
+      e.stopPropagation();
+      const id = parseInt(e.currentTarget.dataset.id);
+      const dropdown = document.querySelector(`.dropdown-menu[data-dropdown="${id}"]`);
+      
+      // Tutup semua dropdown lain
+      document.querySelectorAll('.dropdown-menu').forEach(menu => {
+        if (menu !== dropdown) menu.classList.remove('show');
+      });
+      
+      dropdown.classList.toggle('show');
+      openDropdownId = dropdown.classList.contains('show') ? id : null;
+    }
+
+    function handleEditClick(e) {
+      e.stopPropagation();
+      const id = parseInt(e.currentTarget.dataset.id);
+      const sales = salesData.find(s => s.id === id);
+      if (sales) {
+        openEditModal(sales);
+      }
+      closeAllDropdowns();
+    }
+
+    function handleDeleteClick(e) {
+      e.stopPropagation();
+      const id = parseInt(e.currentTarget.dataset.id);
+      const sales = salesData.find(s => s.id === id);
+      if (sales) {
+        currentDeleteId = id;
+        document.getElementById('deleteMessage').innerHTML = `Apakah Anda yakin ingin menghapus sales <strong>${sales.name}</strong> (${sales.code})?`;
+        document.getElementById('deleteModal').classList.add('active');
+      }
+      closeAllDropdowns();
+    }
+
+    function closeAllDropdowns() {
+      document.querySelectorAll('.dropdown-menu').forEach(menu => {
+        menu.classList.remove('show');
+      });
+      openDropdownId = null;
+    }
+
+    // Generate kode sales otomatis
+    function generateSalesCode() {
+      let maxCode = 0;
+      salesData.forEach(sales => {
+        let num = parseInt(sales.code.split('-')[1]);
+        if (num > maxCode) maxCode = num;
+      });
+      let newNum = (maxCode + 1).toString().padStart(3, '0');
+      return `SLS-${newNum}`;
+    }
+
+    // Cek kode unique
+    function isCodeUnique(code, excludeId = null) {
+      return !salesData.some(sales => sales.code === code && sales.id !== excludeId);
+    }
+
+    function openAddModal() {
+      currentEditId = null;
+      document.getElementById('modalTitle').innerText = 'Tambah Sales';
+      document.getElementById('salesCode').value = generateSalesCode();
+      document.getElementById('salesName').value = '';
+      document.getElementById('salesPhone').value = '';
+      document.getElementById('salesStatus').value = 'active';
+      document.getElementById('codeError').classList.add('hidden');
+      document.getElementById('salesModal').classList.add('active');
+    }
+
+    function openEditModal(sales) {
+      currentEditId = sales.id;
+      document.getElementById('modalTitle').innerText = 'Edit Sales';
+      document.getElementById('salesCode').value = sales.code;
+      document.getElementById('salesName').value = sales.name;
+      document.getElementById('salesPhone').value = sales.phone;
+      document.getElementById('salesStatus').value = sales.status;
+      document.getElementById('codeError').classList.add('hidden');
+      document.getElementById('salesModal').classList.add('active');
+    }
+
+    function saveSales() {
+      let code = document.getElementById('salesCode').value.trim();
+      let name = document.getElementById('salesName').value.trim();
+      let phone = document.getElementById('salesPhone').value.trim();
+      let status = document.getElementById('salesStatus').value;
+
+      // Validasi
+      let hasError = false;
+      if (!code) { showCodeError('Kode sales wajib diisi'); hasError = true; }
+      else if (!isCodeUnique(code, currentEditId)) { showCodeError('Kode sales sudah digunakan'); hasError = true; }
+      
+      if (!name) { alert('Nama sales wajib diisi'); hasError = true; }
+      else if (!phone) { alert('No HP wajib diisi'); hasError = true; }
+
+      if (hasError) return;
+
+      if (currentEditId) {
+        // Edit existing
+        let index = salesData.findIndex(s => s.id === currentEditId);
+        if (index !== -1) {
+          salesData[index].code = code;
+          salesData[index].name = name;
+          salesData[index].phone = phone;
+          salesData[index].status = status;
+          // Update initial
+          salesData[index].initial = name.charAt(0).toUpperCase();
+        }
+      } else {
+        // Add new
+        let colors = ['emerald', 'amber', 'blue', 'rose', 'violet', 'teal', 'indigo', 'cyan', 'orange', 'pink'];
+        let randomColor = colors[Math.floor(Math.random() * colors.length)];
+        let newId = Math.max(...salesData.map(s => s.id), 0) + 1;
+        salesData.push({
+          id: newId,
+          code: code,
+          name: name,
+          phone: phone,
+          status: status,
+          transactions: 0,
+          totalSales: 0,
+          initial: name.charAt(0).toUpperCase(),
+          color: randomColor
+        });
+      }
+
+      closeModal();
+      renderSales();
+    }
+
+    function showCodeError(message) {
+      let errorSpan = document.getElementById('codeError');
+      errorSpan.innerText = message;
+      errorSpan.classList.remove('hidden');
+    }
+
+    function deleteSales() {
+      if (currentDeleteId) {
+        salesData = salesData.filter(s => s.id !== currentDeleteId);
+        closeDeleteModal();
+        renderSales();
+      }
+    }
+
+    function closeModal() {
+      document.getElementById('salesModal').classList.remove('active');
+      currentEditId = null;
+    }
+
+    function closeDeleteModal() {
+      document.getElementById('deleteModal').classList.remove('active');
+      currentDeleteId = null;
+    }
+
+    // Event Listeners
+    document.getElementById('openAddModal').onclick = openAddModal;
+    document.getElementById('saveSalesBtn').onclick = saveSales;
+    document.getElementById('closeModalBtn').onclick = closeModal;
+    document.getElementById('confirmDeleteBtn').onclick = deleteSales;
+    document.getElementById('cancelDeleteBtn').onclick = closeDeleteModal;
+
+    // Tutup modal jika klik di luar
+    window.onclick = (e) => {
+      if (e.target.classList.contains('modal')) {
+        e.target.classList.remove('active');
+        closeAllDropdowns();
+      }
+    };
+
+    // Tutup dropdown jika klik di luar
+    document.addEventListener('click', () => {
+      closeAllDropdowns();
+    });
+
+    // Sidebar toggle
+    $(function(){
+      $('[data-toggle-sidebar]').on('click',function(){
+        $('#sidebar').toggleClass('-translate-x-full');
+        $('#sidebar-backdrop').toggleClass('hidden');
+      });
+      $('#sidebar-backdrop').on('click',function(){
+        $('#sidebar').addClass('-translate-x-full');
+        $(this).addClass('hidden');
+      });
+      $('[data-toggle-user]').on('click',function(e){
+        e.stopPropagation();
+        $('#user-menu').toggleClass('hidden');
+      });
+      $(document).on('click',function(){ $('#user-menu').addClass('hidden'); });
+    });
+
+    // Initial Render
+    renderSales();
+  </script>
+</body>
+</html>

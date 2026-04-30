@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tambah Produk · SDS Farm Administrator</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.5.0/dist/tabler-icons.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/app.css">
+  <script>
+    tailwind.config = { theme: { extend: { colors: { brand: { DEFAULT:'#15803d', dark:'#14532d', light:'#dcfce7' } } } } }
+  </script>
+
+</head>
+<body class="bg-slate-50 min-h-screen">
+  <!-- Sidebar -->
+  <aside id="sidebar" class="fixed inset-y-0 left-0 z-40 w-64 bg-white border-r border-slate-200 transform -translate-x-full lg:translate-x-0 transition-transform duration-200 flex flex-col">
+    <div class="h-16 flex items-center gap-3 px-5 border-b border-slate-200">
+      <div class="w-9 h-9 rounded-lg bg-brand text-white flex items-center justify-center font-bold">SDS</div>
+      <div>
+        <div class="font-bold text-slate-800 leading-tight">SDS Farm</div>
+        <div class="text-[11px] uppercase tracking-wider text-slate-500">Administrator</div>
+      </div>
+    </div>
+    <nav class="flex-1 p-3 space-y-1 overflow-y-auto">
+      <a href="dashboard.html" class="sidebar-link "><i class="ti ti-layout-dashboard text-lg"></i>Dashboard</a>
+      <a href="produk.html" class="sidebar-link "><i class="ti ti-cow text-lg"></i>Produk / Stok</a>
+      <a href="produk-tambah.html" class="sidebar-link active"><i class="ti ti-plus text-lg"></i>Tambah Produk</a>
+      <a href="transaksi.html" class="sidebar-link "><i class="ti ti-receipt-2 text-lg"></i>Transaksi</a>
+      <a href="kandang.html" class="sidebar-link "><i class="ti ti-map-2 text-lg"></i>Posisi Kandang</a>
+      <a href="pengadaan.html" class="sidebar-link "><i class="ti ti-truck-delivery text-lg"></i>Pengadaan</a>
+      <a href="kas.html" class="sidebar-link "><i class="ti ti-cash text-lg"></i>Kas Pemasukan</a>
+      <a href="sales.html" class="sidebar-link "><i class="ti ti-users text-lg"></i>Sales</a>
+    </nav>
+    <div class="p-3 border-t border-slate-200">
+      <a href="../index.html" class="sidebar-link text-red-600 hover:bg-red-50"><i class="ti ti-logout text-lg"></i>Keluar</a>
+    </div>
+  </aside>
+  <div id="sidebar-backdrop" class="hidden fixed inset-0 bg-black/40 z-30 lg:hidden"></div>
+
+  <!-- Topbar -->
+  <header class="lg:pl-64 sticky top-0 z-20 bg-white border-b border-slate-200">
+    <div class="h-16 flex items-center justify-between px-4 lg:px-8">
+      <div class="flex items-center gap-3">
+        <button data-toggle-sidebar class="lg:hidden p-2 rounded-md hover:bg-slate-100"><i class="ti ti-menu-2 text-xl"></i></button>
+        <h1 class="text-lg font-semibold text-slate-800">Tambah Produk</h1>
+      </div>
+      <div class="flex items-center gap-2">
+        <button class="p-2 rounded-md hover:bg-slate-100 relative"><i class="ti ti-bell text-xl"></i><span class="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span></button>
+        <div class="relative">
+          <button data-toggle-user class="flex items-center gap-2 p-1.5 pr-3 rounded-full hover:bg-slate-100">
+            <div class="w-8 h-8 rounded-full bg-brand text-white flex items-center justify-center font-semibold text-sm">A</div>
+            <span class="text-sm font-medium text-slate-700 hidden sm:block">Pak Admin</span>
+            <i class="ti ti-chevron-down text-slate-400"></i>
+          </button>
+          <div id="user-menu" class="hidden absolute right-0 mt-2 w-48 bg-white border border-slate-200 rounded-lg shadow-lg py-1">
+            <a href="#" class="block px-4 py-2 text-sm hover:bg-slate-50">Profil</a>
+            <a href="#" class="block px-4 py-2 text-sm hover:bg-slate-50">Pengaturan</a>
+            <a href="../index.html" class="block px-4 py-2 text-sm text-red-600 hover:bg-red-50">Keluar</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main -->
+  <main class="lg:pl-64">
+    <div class="p-4 lg:p-8">
+
+      <a href="produk.html" class="text-sm text-slate-500 hover:text-brand inline-flex items-center gap-1 mb-4"><i class="ti ti-arrow-left"></i> Kembali ke daftar</a>
+      <form class="grid lg:grid-cols-3 gap-6">
+        <div class="lg:col-span-2 space-y-6">
+          <div class="card p-6">
+            <h3 class="font-bold mb-4">Informasi Dasar</h3>
+            <div class="grid sm:grid-cols-2 gap-4">
+              <div class="sm:col-span-2"><label class="label">Nama Hewan</label><input class="input" placeholder="Contoh: Sapi Limosin #07"></div>
+              <div><label class="label">Kategori</label><select class="input"><option>Sapi</option><option>Kambing</option><option>Domba</option><option>Kerbau</option></select></div>
+              <div><label class="label">Kode / SKU</label><input class="input" placeholder="SDS-1008"></div>
+              <div><label class="label">Berat Estimasi (kg)</label><input class="input" type="number" placeholder="320"></div>
+              <div><label class="label">Umur (tahun)</label><input class="input" type="number" step="0.5" placeholder="2.5"></div>
+              <div><label class="label">Jenis Kelamin</label><select class="input"><option>Jantan</option><option>Betina</option></select></div>
+              <div><label class="label">Posisi Kandang</label><input class="input" placeholder="B-12"></div>
+              <div class="sm:col-span-2"><label class="label">Deskripsi / Info</label><textarea class="input" rows="4" placeholder="Catatan tentang hewan..."></textarea></div>
+            </div>
+          </div>
+
+          <div class="card p-6">
+            <h3 class="font-bold mb-4">Harga</h3>
+            <div class="grid sm:grid-cols-3 gap-4">
+              <div><label class="label">Harga Dasar</label><div class="relative"><span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">Rp</span><input class="input pl-10" placeholder="18.000.000"></div></div>
+              <div><label class="label">Harga Jual Konsumen</label><div class="relative"><span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">Rp</span><input class="input pl-10" placeholder="21.500.000"></div></div>
+              <div><label class="label">Harga Jual Sales</label><div class="relative"><span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">Rp</span><input class="input pl-10" placeholder="20.000.000"></div></div>
+            </div>
+          </div>
+
+          <div class="card p-6">
+            <h3 class="font-bold mb-4">Foto Hewan</h3>
+            <div class="grid grid-cols-4 gap-3">
+              <label class="aspect-square border-2 border-dashed border-slate-300 rounded-lg flex flex-col items-center justify-center text-slate-400 hover:border-brand hover:text-brand cursor-pointer"><i class="ti ti-photo-plus text-3xl"></i><span class="text-xs mt-1">Tambah</span><input type="file" class="hidden"></label>
+              <div class="aspect-square rounded-lg overflow-hidden relative"><img src="../assets/animal-3.jpg" class="w-full h-full object-cover"><button type="button" class="absolute top-1 right-1 w-6 h-6 bg-red-500 text-white rounded-full text-xs">×</button></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="space-y-6">
+          <div class="card p-6">
+            <h3 class="font-bold mb-4">Status Publikasi</h3>
+            <select class="input"><option>Publish — Tampil di toko</option><option>Draft — Belum siap</option><option>Unpublish — Sembunyikan</option></select>
+            <div class="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-lg text-xs text-amber-800 flex gap-2"><i class="ti ti-info-circle"></i> Hewan yang dipublish akan tampil di katalog konsumen.</div>
+          </div>
+          <div class="card p-6">
+            <h3 class="font-bold mb-4">QR Code</h3>
+            <div class="aspect-square bg-white border-2 border-slate-200 rounded-lg flex items-center justify-center">
+              <div class="text-center">
+                <div class="w-32 h-32 mx-auto bg-[url('https://api.qrserver.com/v1/create-qr-code/?data=SDS-1008&size=200x200')] bg-contain bg-no-repeat bg-center"></div>
+                <div class="text-xs font-mono mt-2 text-slate-500">SDS-1008</div>
+              </div>
+            </div>
+            <button type="button" class="mt-3 w-full border border-slate-300 py-2 rounded-lg text-sm font-semibold hover:bg-slate-50 flex items-center justify-center gap-2"><i class="ti ti-download"></i> Download QR</button>
+          </div>
+          <div class="card p-6 space-y-2">
+            <button type="submit" class="w-full btn-brand py-3 rounded-lg font-bold flex items-center justify-center gap-2"><i class="ti ti-device-floppy"></i> Simpan Produk</button>
+            <button type="button" class="w-full border border-slate-300 py-3 rounded-lg font-semibold hover:bg-slate-50">Batal</button>
+          </div>
+        </div>
+      </form>
+
+    </div>
+  </main>
+
+  <script src="../assets/app.js"></script>
+</body>
+</html>
